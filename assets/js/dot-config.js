@@ -11,6 +11,8 @@
     roleContextFunction:"portal-access-context",
     /* Existing DOT-only backend adapter. Front-end files are completely separate from Enterprise. */
     managementFunction:"dot-enterprise-management",
+    controlRegistryFunction:"dot-control-registry",
+    configFunction:"dot-config-management",
     selectionFunction:"dot-selection-management",
     testingHandoffFunction:"dot-testing-handoff",
     inviteFunction:"dot-account-invite",
