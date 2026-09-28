@@ -6,7 +6,7 @@
     portalHost:"dot-portal.screenings4u.com",
     managedWebsite:"https://dot.screenings4u.com",
     supabaseUrl:"https://elpbnytpciqnbexiaebp.supabase.co",
-    supabaseAnonKey:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm55dHBjaXFuYmV4aWFlYnAiLCJyZWYiOiJlbHBibnl0cGNpcW5iZXhpYWVicCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzkwMjk2MDM0LCJleHAiOjIxMDU4NzIwMzR9.kWzPDxpdeorkJJpP6pvt4LCP-W9uGGVAgcQVVheVuE8",
+    supabaseAnonKey:"sb_publishable_xVI6Mjkk1bNVMGHZCPuK6w_8FSHKdkC",
     staffContextFunction:"screenings4u-staff-context",
     roleContextFunction:"portal-access-context",
     /* Existing DOT-only backend adapter. Front-end files are completely separate from Enterprise. */
