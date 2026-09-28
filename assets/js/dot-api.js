@@ -7,6 +7,7 @@ async function invoke(functionName,body={}){const s=await session();const url=`$
 async function call(action,extra={}){return invoke(cfg().managementFunction,{action,...extra})}
 async function registry(action,extra={}){return invoke(cfg().controlRegistryFunction,{action,...extra})}
 async function config(action,extra={}){return invoke(cfg().configFunction,{action,...extra})}
+async function distribution(action,extra={}){return invoke(cfg().distributionFunction,{action,...extra})}
 async function health(){try{const d=await call('reports');return {ok:true,data:d}}catch(error){return {ok:false,error}}}
 async function websiteControl(action,payload={}){
   // Dedicated front-end contract for dot.screenings4u.com. Backend route can be added without changing portal pages.
@@ -16,5 +17,5 @@ async function portalControl(action,payload={}){
   // Dedicated contract for customer-facing DOT portals. This is intentionally isolated from Enterprise modules.
   try{return await call('portal_control_'+action,payload)}catch(error){if(/unknown|unsupported|action|not found/i.test(error.message||''))return {notConnected:true,error:error.message};throw error}
 }
-window.DOTApi=Object.freeze({call,invoke,health,registry,config,websiteControl,portalControl});
+window.DOTApi=Object.freeze({call,invoke,health,registry,config,distribution,websiteControl,portalControl});
 })();

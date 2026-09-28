@@ -12,6 +12,7 @@
     /* Existing DOT-only backend adapter. Front-end files are completely separate from Enterprise. */
     managementFunction:"dot-enterprise-management",
     controlRegistryFunction:"dot-control-registry",
+    distributionFunction:"dot-distribution-management",
     configFunction:"dot-config-management",
     selectionFunction:"dot-selection-management",
     testingHandoffFunction:"dot-testing-handoff",
