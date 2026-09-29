@@ -59,6 +59,7 @@ async function ctpaDetailPage(){
    DOTApi.call('audit_history').catch(()=>({audit_events:[]}))
  ]);
  const c=d.customer;if(!c){notice('C/TPA account not found.',true);return}
+ const overrideState=await DOTApi.call('get_ctpa_access_override',{ctpa_id:id}).catch(()=>({unlimited:false,override:null})),unlimited=overrideState.unlimited===true;
  const org=d.organization||c.organizations||{},subs=d.subscriptions||[],plans=features.plans||billing.plans||[],activeSub=subs.find(x=>['active','trial'].includes(String(x.status)))||subs[0]||null,plan=activeSub?plans.find(x=>x.id===activeSub.plan_id)||null:null;
  const allFeatures=features.features||[],pfs=features.plan_features||[],ovs=(features.overrides||[]).filter(x=>x.ctpa_id===id),effective=f=>{const ov=ovs.find(x=>x.feature_id===f.id);if(ov)return ov.enabled===true;const pf=pfs.find(x=>x.plan_id===activeSub?.plan_id&&x.feature_id===f.id);return pf?.enabled===true};
  const portalAccess=(d.portal_access||[]).find(x=>x.portal_code==='ctpa_dot')||null,portalEnabled=portalAccess?.enabled===true;
@@ -88,10 +89,11 @@ async function ctpaDetailPage(){
      </div>
    </article>
    <article class="dot-card half">
-     <div class="dot-card-head"><div><h2>Subscription</h2><p>Current C/TPA software subscription.</p></div>${badge(activeSub?.status||'none')}</div>
+     <div class="dot-card-head"><div><h2>Subscription</h2><p>Current C/TPA software subscription.</p></div>${badge(unlimited?'unlimited':activeSub?.status||'none')}</div>
      <div class="dot-card-body">
-       ${kv({plan:plan?.name||plan?.code||'—',billing_frequency:activeSub?.billing_frequency||plan?.billing_model?.frequency||'—',renewal_date:activeSub?.renewal_date||activeSub?.stripe_current_period_end||'—',subscription_id:activeSub?.id||'—'})}
-       <div class="dot-actions" style="margin-top:16px"><a class="dot-btn primary" href="dot-orders.html?ctpa_id=${encodeURIComponent(id)}">Create / Change Order</a><a class="dot-btn" href="dot-invoices.html?ctpa_id=${encodeURIComponent(id)}">Billing & Invoices</a></div>
+       ${kv({plan:plan?.name||plan?.code||'—',billing_frequency:unlimited?'Unlimited — no recurring renewal':activeSub?.billing_frequency||plan?.billing_model?.frequency||'—',renewal_date:unlimited?'Not required':activeSub?.renewal_date||activeSub?.stripe_current_period_end||'—',subscription_id:activeSub?.id||'—'})}
+       <p class="dot-help" style="margin-top:14px">Unlimited access bypasses subscription renewal reminders and nonpayment lockout until management revokes the override.</p>
+       <div class="dot-actions" style="margin-top:16px"><button class="dot-btn ${unlimited?'':'primary'}" id="toggleUnlimited">${unlimited?'Revoke Unlimited Access':'Grant Unlimited Access'}</button><a class="dot-btn primary" href="dot-orders.html?ctpa_id=${encodeURIComponent(id)}">Create / Change Order</a><a class="dot-btn" href="dot-invoices.html?ctpa_id=${encodeURIComponent(id)}">Billing & Invoices</a></div>
      </div>
    </article>
  </div>
@@ -138,13 +140,15 @@ async function ctpaDetailPage(){
      <div class="dot-card-head"><div><h2>Billing, Support & Audit</h2><p>Current management activity for this C/TPA.</p></div></div>
      <div class="dot-card-body">
        ${kv({support_tickets:tickets.length,open_support:tickets.filter(x=>!['resolved','closed'].includes(String(x.status))).length,invoices:invoices.length,outstanding_invoices:invoices.filter(x=>Number(x.amount_due||0)>0).length,portal_users:memberships.length})}
-       <div class="dot-actions" style="margin-top:16px"><a class="dot-btn" href="dot-support.html?ctpa_id=${encodeURIComponent(id)}">Support</a><a class="dot-btn" href="dot-invoices.html?ctpa_id=${encodeURIComponent(id)}">Billing</a><a class="dot-btn" href="dot-audit.html?ctpa_id=${encodeURIComponent(id)}">Audit & Logs</a></div>
+       <div class="dot-actions" style="margin-top:16px"><button class="dot-btn primary" id="resendCtpaReceipt">Resend Latest Receipt</button><a class="dot-btn" href="dot-support.html?ctpa_id=${encodeURIComponent(id)}">Support</a><a class="dot-btn" href="dot-invoices.html?ctpa_id=${encodeURIComponent(id)}">Billing</a><a class="dot-btn" href="dot-audit.html?ctpa_id=${encodeURIComponent(id)}">Audit & Logs</a></div>
        <div style="margin-top:18px"><h3>Recent Audit</h3>${events.length?events.map(e=>`<div class="dot-kpi-row"><span>${esc(e.action||e.event_type||'Activity')}</span><strong>${esc(e.resource_type||'record')}</strong></div>`).join(''):'<div class="dot-empty">No recent audit records.</div>'}</div>
      </div>
    </article>
  </div>`;
  $('#saveCtpa').onclick=async()=>{try{await DOTApi.call('save_ctpa_profile',{ctpa:{id:c.id,legal_name:$('#ctpaLegal').value,display_name:$('#ctpaDisplay').value,support_email:$('#ctpaEmail').value,support_phone:$('#ctpaPhone').value,status:$('#ctpaStatus').value,white_label_enabled:$('#ctpaWhite').checked}});notice('C/TPA account updated.')}catch(e){notice(e.message,true)}};
+ $('#toggleUnlimited').onclick=async()=>{try{await DOTApi.call('set_ctpa_unlimited_access',{ctpa_id:id,enabled:!unlimited,reason:'DOT Management Portal administrative override'});notice(!unlimited?'Unlimited access granted. Renewal reminders and nonpayment suspension are bypassed.':'Unlimited access revoked. Normal subscription renewal rules now apply.');return ctpaDetailPage()}catch(e){notice(e.message,true)}};
  $('#togglePortal').onclick=async()=>{try{await DOTApi.call('set_portal_access',{organization_id:org.id,portal_code:'ctpa_dot',enabled:!portalEnabled,tenant_id:c.tenant_id});notice(!portalEnabled?'C/TPA portal access granted.':'C/TPA portal access revoked.');return ctpaDetailPage()}catch(e){notice(e.message,true)}};
+ $('#resendCtpaReceipt').onclick=async()=>{try{const out=await DOTApi.invoke(DOT_PORTAL_CONFIG.orderingFunction,{action:'resend_ctpa_receipt',ctpa_id:id});notice(out.receipt?.sent===true?`Receipt ${out.order_number||''} sent successfully.`:`Receipt resend was attempted, but email delivery was not confirmed${out.receipt?.reason?': '+out.receipt.reason:''}.`,out.receipt?.sent!==true)}catch(e){notice(e.message,true)}};
  $('#sendPrimaryInvite').onclick=async()=>{try{if(!primaryEmail)throw new Error('The C/TPA primary account does not have an email address.');if(!portalEnabled)await DOTApi.call('set_portal_access',{organization_id:org.id,portal_code:'ctpa_dot',enabled:true,tenant_id:c.tenant_id});const out=await DOTApi.invoke(DOT_PORTAL_CONFIG.inviteFunction,{organization_id:org.id,email:primaryEmail,first_name:primaryProfile.first_name||'',last_name:primaryProfile.last_name||'',role:'account_admin',account_type:'dot_ctpa',is_primary:true});notice(out.branded_email_sent?'Branded C/TPA portal invite sent.':'Portal access was updated, but the branded email provider did not confirm delivery.');return ctpaDetailPage()}catch(e){notice(e.message,true)}};
  document.querySelectorAll('.memberAccessToggle').forEach(btn=>btn.addEventListener('click',async()=>{try{await DOTApi.call('set_ctpa_user_access',{ctpa_id:id,user_id:btn.dataset.user,enabled:btn.dataset.next==='1'});notice(btn.dataset.next==='1'?'C/TPA user access granted.':'C/TPA user access revoked.');return ctpaDetailPage()}catch(e){notice(e.message,true)}}));
  document.querySelectorAll('.memberInvite').forEach(btn=>btn.addEventListener('click',async()=>{try{const email=btn.dataset.email;if(!email)throw new Error('This user does not have an email address.');if(!portalEnabled)await DOTApi.call('set_portal_access',{organization_id:org.id,portal_code:'ctpa_dot',enabled:true,tenant_id:c.tenant_id});const out=await DOTApi.invoke(DOT_PORTAL_CONFIG.inviteFunction,{organization_id:org.id,email,first_name:btn.dataset.first||'',last_name:btn.dataset.last||'',role:'account_admin',account_type:'dot_ctpa',is_primary:true});notice(out.branded_email_sent?'Branded password setup/reset email sent.':'Portal access updated, but email delivery was not confirmed.')}catch(e){notice(e.message,true)}}));
