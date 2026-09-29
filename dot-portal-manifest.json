@@ -10,6 +10,7 @@
     "dot-clearinghouse.html",
     "dot-compliance.html",
     "dot-ctpas.html",
+    "dot-ctpa-detail.html",
     "dot-dashboard.html",
     "dot-documents.html",
     "dot-drivers.html",
@@ -21,6 +22,7 @@
     "dot-owner-operators.html",
     "dot-pools.html",
     "dot-portal-control.html",
+    "dot-portal-page.html",
     "dot-programs.html",
     "dot-random-selections.html",
     "dot-results.html",
@@ -31,5 +33,9 @@
     "dot-training.html",
     "dot-users-access.html",
     "dot-website.html"
-  ]
+  ],
+  "managed_portals": 35,
+  "first_wired_portal": "ctpa_dot",
+  "first_wired_portal_pages": 55,
+  "managed_website_pages": 32
 }
