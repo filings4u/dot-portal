@@ -17,6 +17,8 @@
     selectionFunction:"dot-selection-management",
     testingHandoffFunction:"dot-testing-handoff",
     inviteFunction:"dot-account-invite",
+    provisioningFunction:"enterprise-account-provisioning",
+    orderingFunction:"enterprise-account-ordering",
     storageKey:"s4u-dot-management-session"
   });
   window.DOT_PORTAL_CONFIG=config;
