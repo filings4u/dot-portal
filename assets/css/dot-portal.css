@@ -120,3 +120,69 @@
 
 /* Production plan catalog */
 .plan-feature-group{margin:0 0 22px}.plan-feature-group h3{margin:0 0 10px;color:#0b3769;font-size:15px}.dot-field small{display:block;margin-top:6px;color:#7890aa;font-size:11px;line-height:1.35}
+
+/* Production website plan manager — layout, validation, and control polish */
+.plan-admin-page .dot-page-head{margin-bottom:18px}
+.plan-admin-page .dot-metrics{margin-bottom:18px}
+.plan-admin-page .dot-card{overflow:hidden}
+.plan-admin-page .dot-card-head{gap:18px}
+.plan-admin-page .dot-card-head .dot-actions{flex-wrap:wrap;justify-content:flex-end}
+.plan-admin-page .dot-card-body{padding:18px}
+.plan-admin-page .dot-filter-row{display:grid;grid-template-columns:minmax(260px,1fr) 180px 180px;gap:10px;align-items:center}
+.plan-admin-page .dot-filter-row input,.plan-admin-page .dot-filter-row select{width:100%;min-height:40px;padding:8px 11px;border:1px solid #cfd9e6;border-radius:8px;background:#fff;color:#17375f;font:inherit;outline:none}
+.plan-admin-page .dot-filter-row input:focus,.plan-admin-page .dot-filter-row select:focus{border-color:var(--dot-blue);box-shadow:0 0 0 3px rgba(36,70,127,.09)}
+.plan-admin-page .dot-table td,.plan-admin-page .dot-table th{vertical-align:middle}
+.plan-admin-page .dot-table td>strong{display:block;color:var(--dot-navy)}
+.plan-admin-page .dot-table td>small{display:block;margin-top:4px;color:var(--dot-muted);line-height:1.4}
+.plan-admin-page .dot-field-grid{gap:15px 16px}
+.plan-admin-page .dot-field label{display:block;margin-bottom:7px;color:#36516f;font-size:10px;font-weight:900;letter-spacing:.035em;text-transform:uppercase}
+.plan-admin-page .dot-field input,.plan-admin-page .dot-field select,.plan-admin-page .dot-field textarea{width:100%;min-height:42px;border:1px solid #cfd9e6;border-radius:8px;background:#fff;color:#102f55;font:inherit;transition:border-color .16s ease,box-shadow .16s ease,background .16s ease}
+.plan-admin-page .dot-field input,.plan-admin-page .dot-field select{padding:9px 11px}
+.plan-admin-page .dot-field textarea{min-height:124px;padding:11px 12px;line-height:1.5;resize:vertical}
+.plan-admin-page .dot-field input:focus,.plan-admin-page .dot-field select:focus,.plan-admin-page .dot-field textarea:focus{outline:none;border-color:var(--dot-blue);box-shadow:0 0 0 3px rgba(36,70,127,.09)}
+.plan-admin-page .field-required{color:#cf2e2e}
+.plan-admin-page .field-error{display:none;margin-top:6px!important;color:#b42318!important;font-size:10px!important;font-weight:750}
+.plan-admin-page .dot-field.field-invalid .field-error{display:block}
+.plan-admin-page .dot-field.field-invalid input,.plan-admin-page .dot-field.field-invalid select,.plan-admin-page .dot-field.field-invalid textarea{border-color:#d92d20;background:#fffafa;box-shadow:0 0 0 3px rgba(217,45,32,.08)}
+.plan-admin-page .dot-checkbox-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.plan-admin-page .dot-check{display:flex;align-items:flex-start;gap:10px;min-height:68px;padding:12px 13px;border:1px solid #d5dfeb;border-radius:9px;background:#fff;cursor:pointer}
+.plan-admin-page .dot-check:hover{border-color:#b9c8da;background:#fbfdff}
+.plan-admin-page .dot-check input[type="checkbox"]{appearance:auto;-webkit-appearance:checkbox;flex:0 0 16px;width:16px;height:16px;min-height:0;margin:2px 0 0;padding:0;accent-color:var(--dot-blue)}
+.plan-admin-page .dot-check>span{display:flex;min-width:0;flex:1;flex-direction:column;gap:4px}
+.plan-admin-page .dot-check strong{display:block;color:#0b356d;font-size:12px;line-height:1.25}
+.plan-admin-page .dot-check small{display:block;margin:0!important;color:#697f9a;font-size:10px;line-height:1.45}
+.plan-admin-page .plan-feature-group{margin:0 0 24px}
+.plan-admin-page .plan-feature-group:last-child{margin-bottom:0}
+.plan-admin-page .plan-feature-group h3{margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--dot-line-soft);color:#0b356d;font-size:14px}
+.plan-admin-page .dot-detail-grid{gap:10px}
+.plan-admin-page .dot-detail-item{min-width:0}
+.plan-admin-page .dot-detail-item strong{overflow-wrap:anywhere}
+.plan-admin-page .dot-help{color:#687e99;font-size:10px;line-height:1.55}
+.plan-notice{margin:0 0 16px!important}
+.plan-notice.success{border-color:#b7e3c7;background:#f0fbf4;color:#176a38}
+.plan-notice.warning{border-color:#f5c2bf;background:#fff6f5;color:#a5251a}
+.plan-notice>div{display:flex;gap:10px;align-items:center}
+.plan-notice strong{white-space:nowrap}
+@media(max-width:980px){.plan-admin-page .dot-filter-row{grid-template-columns:1fr 1fr}.plan-admin-page .dot-filter-row input{grid-column:1/-1}.plan-admin-page .dot-checkbox-grid{grid-template-columns:1fr}.plan-admin-page .dot-grid>.dot-card[style*="grid-column:span 8"],.plan-admin-page .dot-grid>.dot-card[style*="grid-column:span 4"]{grid-column:span 12!important}}
+@media(max-width:620px){.plan-admin-page .dot-filter-row{grid-template-columns:1fr}.plan-admin-page .dot-filter-row input{grid-column:auto}.plan-admin-page .dot-card-body{padding:14px}.plan-admin-page .dot-page-head .dot-actions{width:100%;justify-content:flex-start}.plan-admin-page .dot-page-head .dot-actions .dot-btn{flex:1 1 auto}.plan-admin-page .dot-table-wrap{overflow-x:auto}.plan-admin-page .dot-table{min-width:860px}}
+
+/* Global C/TPA account editing safeguards */
+#company .dot-field input:disabled,#company .dot-field select:disabled,#company .dot-field textarea:disabled{background:#f2f5f8;color:#5f7188;border-color:#d8e0ea;cursor:not-allowed;opacity:1}
+#company .dot-check:has(input:disabled){background:#f6f8fa;color:#697b91;cursor:not-allowed}
+#company .dot-permanent-code,#company .dot-permanent-code[readonly]{background:#e9eef4!important;color:#405875!important;border-color:#cdd7e2!important;font-weight:800;cursor:not-allowed}
+#company.is-editing{position:relative}
+#company.has-unsaved-changes>.dot-section-heading{padding:10px 12px;border:1px solid #f3c77b;border-radius:9px;background:#fff9ed}
+#company.has-unsaved-changes>.dot-section-heading:after{content:'Unsaved changes';margin-left:auto;color:#a65b00;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+@media(max-width:900px){#company.has-unsaved-changes>.dot-section-heading:after{margin-left:38px}}
+
+
+/* C/TPA lab account number editor */
+.dot-field-span-2{grid-column:1/-1}
+.dot-lab-account-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.dot-lab-account-item{display:flex;flex-direction:column;gap:6px}
+.dot-lab-account-item>span{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#5c708d}
+.dot-lab-account-item input{width:100%}
+.dot-help{display:block;margin-top:7px;color:#7b8da7;font-size:11px;line-height:1.45}
+#labName[readonly]{background:#f2f5f8;color:#50627b;cursor:not-allowed}
+@media(max-width:900px){.dot-lab-account-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.dot-lab-account-grid{grid-template-columns:1fr}}

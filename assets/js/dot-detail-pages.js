@@ -85,7 +85,7 @@ async function ctpaDetailPage(){
    <div>
      <div class="dot-eyebrow">C/TPA ACCOUNT</div>
      <h2>${esc(org.legal_name||org.dba_name||'C/TPA Account')}</h2>
-     <p>${esc(val(meta.company_code,'No company code'))} · ${esc(primaryEmail||'No primary email')}</p>
+     <p>${esc(val(c.company_code,meta.company_code,'No company code'))} · ${esc(primaryEmail||'No primary email')}</p>
    </div>
    <div class="dot-inline-actions">
      ${badge(c.status||'active')}
@@ -104,16 +104,15 @@ async function ctpaDetailPage(){
  </div>
 
  <section id="company" class="dot-account-section">
-   <div class="dot-section-heading"><div><span>01</span><h2>Company & Primary Contact</h2><p>Edit the complete C/TPA company record, primary portal user contact information, DER contact, and identifiers.</p></div><button class="dot-btn primary" id="saveCompanyProfile">Save Company Information</button></div>
+   <div class="dot-section-heading"><div><span>01</span><h2>Company & Primary Contact</h2><p>Review the C/TPA company record, primary portal user contact information, DER contact, and identifiers.</p></div><div class="dot-inline-actions"><button class="dot-btn" id="editCompanyProfile" type="button">Edit</button><button class="dot-btn" id="cancelCompanyEdit" type="button" hidden>Cancel</button><button class="dot-btn primary" id="saveCompanyProfile" type="button" hidden>Save Company Information</button></div></div>
    <article class="dot-card"><div class="dot-card-body">
      <div class="dot-form-subhead">Company identity</div>
      <div class="dot-field-grid">
        ${field('Legal Company Name','profileLegal',org.legal_name||'')}
        ${field('DBA / Display Name','profileDba',org.dba_name||org.display_name||'')}
-       ${field('Company Code','profileCode',val(meta.company_code,c.company_code,org.company_code))}
+       <div class="dot-field"><label for="profileCode">Company Code</label><input id="profileCode" class="dot-permanent-code" type="text" value="${esc(val(c.company_code,meta.company_code,org.company_code))}" readonly aria-readonly="true"><small class="dot-help">Permanent account identifier. This code cannot be changed.</small></div>
        ${field('Website','profileWebsite',org.website||'')}
        ${field('EIN / Federal Tax ID','profileEin',org.ein||'')}
-       <div class="dot-field"><label for="profilePrimaryIdType">Primary ID Type</label><select id="profilePrimaryIdType">${[['','Select'],['ein','EIN / Federal Tax ID'],['dot_number','USDOT Number'],['duns','D-U-N-S Number'],['other','Other']].map(x=>opt(x[0],x[1],val(meta.primary_id_type))).join('')}</select></div>
      </div>
      <div class="dot-form-subhead">Address</div>
      <div class="dot-field-grid">
@@ -122,7 +121,6 @@ async function ctpaDetailPage(){
        ${field('City','profileCity',org.city||'')}
        <div class="dot-field"><label for="profileState">State</label><select id="profileState">${states.map(x=>opt(x,x||'Select',val(org.state_region,meta.state))).join('')}</select></div>
        ${field('ZIP / Postal Code','profilePostal',org.postal_code||'')}
-       ${field('Province','profileProvince',val(meta.province))}
        <div class="dot-field"><label for="profileCountry">Country</label><select id="profileCountry">${countryOpts.map(x=>opt(x[0],x[1],val(org.country,'US'))).join('')}</select></div>
        <div class="dot-field"><label for="profileTimezone">Time Zone</label><select id="profileTimezone">${tz.map(x=>opt(x,x,val(meta.time_zone,'America/Chicago'))).join('')}</select></div>
      </div>
@@ -231,7 +229,20 @@ async function ctpaDetailPage(){
    </div>
  </section>`;
 
- $('#saveCompanyProfile').onclick=async()=>{try{const btn=$('#saveCompanyProfile');btn.disabled=true;btn.textContent='Saving…';await DOTApi.invoke(adminFn,{action:'save_company_profile',ctpa_id:id,profile:{primary_user_id:primary?.user_id||'',legal_name:$('#profileLegal').value,dba_name:$('#profileDba').value,company_code:$('#profileCode').value,website:$('#profileWebsite').value,ein:$('#profileEin').value,primary_id_type:$('#profilePrimaryIdType').value,address_line1:$('#profileAddress1').value,address_line2:$('#profileAddress2').value,city:$('#profileCity').value,state:$('#profileState').value,postal_code:$('#profilePostal').value,province:$('#profileProvince').value,country:$('#profileCountry').value,time_zone:$('#profileTimezone').value,office_phone:$('#profileOfficePhone').value,office_fax:$('#profileOfficeFax').value,contact_first_name:$('#profileContactFirst').value,contact_last_name:$('#profileContactLast').value,contact_phone:$('#profileContactPhone').value,contact_email:$('#profileContactEmail').value,der_first_name:$('#profileDerFirst').value,der_last_name:$('#profileDerLast').value,der_phone:$('#profileDerPhone').value,der_email:$('#profileDerEmail').value,lab_account_not_required:$('#profileLabNotRequired').checked,white_label_enabled:$('#ctpaWhite').checked,status:$('#ctpaStatus').value,support_email:$('#ctpaEmail').value,support_phone:$('#ctpaPhone').value}});notice('C/TPA company information saved.');return ctpaDetailPage()}catch(e){const btn=$('#saveCompanyProfile');if(btn){btn.disabled=false;btn.textContent='Save Company Information'}notice(e.message,true)}};
+ const companySection=$('#company'),editCompanyBtn=$('#editCompanyProfile'),cancelCompanyBtn=$('#cancelCompanyEdit'),saveCompanyBtn=$('#saveCompanyProfile');
+ const companyControls=[...companySection.querySelectorAll('input,select,textarea')].filter(el=>el.id!=='profileCode');
+ const companySnapshot=()=>JSON.stringify(companyControls.map(el=>({id:el.id,value:el.type==='checkbox'?el.checked:el.value})));
+ let companyInitial=companySnapshot(),companyDirty=false,companyEditActive=false;
+ const setCompanyEditMode=enabled=>{companyEditActive=enabled;companyControls.forEach(el=>el.disabled=!enabled);$('#profileCode').readOnly=true;$('#profileCode').setAttribute('aria-readonly','true');editCompanyBtn.hidden=enabled;cancelCompanyBtn.hidden=!enabled;saveCompanyBtn.hidden=!enabled;companySection.classList.toggle('is-editing',enabled)};
+ const markCompanyDirty=()=>{if(!companyEditActive)return;companyDirty=companySnapshot()!==companyInitial;companySection.classList.toggle('has-unsaved-changes',companyDirty)};
+ setCompanyEditMode(false);
+ companyControls.forEach(el=>{el.addEventListener('input',markCompanyDirty);el.addEventListener('change',markCompanyDirty)});
+ editCompanyBtn.onclick=()=>{companyInitial=companySnapshot();companyDirty=false;setCompanyEditMode(true);companyControls.find(el=>!el.disabled)?.focus()};
+ cancelCompanyBtn.onclick=()=>{if(companyDirty&&!confirm('Discard the unsaved company information changes?'))return;const saved=JSON.parse(companyInitial);for(const item of saved){const el=document.getElementById(item.id);if(!el)continue;if(el.type==='checkbox')el.checked=item.value;else el.value=item.value}companyDirty=false;companySection.classList.remove('has-unsaved-changes');setCompanyEditMode(false)};
+ const beforeUnloadHandler=e=>{if(!companyDirty)return;e.preventDefault();e.returnValue=''};
+ window.addEventListener('beforeunload',beforeUnloadHandler);
+ document.addEventListener('click',e=>{if(!companyDirty)return;const a=e.target.closest('a[href]');if(!a||a.target==='_blank'||a.href.startsWith('javascript:'))return;if(!confirm('You have unsaved company information. Leave this page without saving your changes?')){e.preventDefault();e.stopImmediatePropagation()}},{capture:true});
+ saveCompanyBtn.onclick=async()=>{try{saveCompanyBtn.disabled=true;saveCompanyBtn.textContent='Saving…';await DOTApi.invoke(adminFn,{action:'save_company_profile',ctpa_id:id,profile:{primary_user_id:primary?.user_id||'',legal_name:$('#profileLegal').value,dba_name:$('#profileDba').value,website:$('#profileWebsite').value,ein:$('#profileEin').value,address_line1:$('#profileAddress1').value,address_line2:$('#profileAddress2').value,city:$('#profileCity').value,state:$('#profileState').value,postal_code:$('#profilePostal').value,country:$('#profileCountry').value,time_zone:$('#profileTimezone').value,office_phone:$('#profileOfficePhone').value,office_fax:$('#profileOfficeFax').value,contact_first_name:$('#profileContactFirst').value,contact_last_name:$('#profileContactLast').value,contact_phone:$('#profileContactPhone').value,contact_email:$('#profileContactEmail').value,der_first_name:$('#profileDerFirst').value,der_last_name:$('#profileDerLast').value,der_phone:$('#profileDerPhone').value,der_email:$('#profileDerEmail').value,lab_account_not_required:$('#profileLabNotRequired').checked,white_label_enabled:$('#ctpaWhite').checked,status:$('#ctpaStatus').value,support_email:$('#ctpaEmail').value,support_phone:$('#ctpaPhone').value}});companyDirty=false;window.removeEventListener('beforeunload',beforeUnloadHandler);notice('C/TPA company information saved.');return ctpaDetailPage()}catch(e){saveCompanyBtn.disabled=false;saveCompanyBtn.textContent='Save Company Information';notice(e.message,true)}};
  $('#saveCtpa').onclick=async()=>{try{await DOTApi.call('save_ctpa_profile',{ctpa:{id:c.id,legal_name:$('#profileLegal').value,display_name:$('#profileDba').value,support_email:$('#ctpaEmail').value,support_phone:$('#ctpaPhone').value,status:$('#ctpaStatus').value,white_label_enabled:$('#ctpaWhite').checked}});notice('C/TPA account settings updated.');return ctpaDetailPage()}catch(e){notice(e.message,true)}};
  $('#toggleUnlimited').onclick=async()=>{try{await DOTApi.call('set_ctpa_unlimited_access',{ctpa_id:id,enabled:!unlimited,reason:'DOT Management Portal administrative override'});notice(!unlimited?'Unlimited access granted.':'Unlimited access revoked.');return ctpaDetailPage()}catch(e){notice(e.message,true)}};
  $('#changePlan').onclick=()=>{
