@@ -11,6 +11,7 @@
     roleContextFunction:"portal-access-context",
     /* Existing DOT-only backend adapter. Front-end files are completely separate from Enterprise. */
     managementFunction:"dot-enterprise-management",
+    ctpaAdminFunction:"dot-ctpa-admin-data",
     controlRegistryFunction:"dot-control-registry",
     distributionFunction:"dot-distribution-management",
     configFunction:"dot-config-management",
@@ -19,6 +20,7 @@
     inviteFunction:"dot-account-invite",
     provisioningFunction:"enterprise-account-provisioning",
     orderingFunction:"enterprise-account-ordering",
+    adminOrderFunction:"dot-admin-order",
     storageKey:"s4u-dot-management-session"
   });
   window.DOT_PORTAL_CONFIG=config;
