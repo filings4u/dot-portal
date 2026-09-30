@@ -22,7 +22,7 @@
     orderingFunction:"enterprise-account-ordering",
     adminOrderFunction:"dot-admin-order",
     pricingAdminFunction:"dot-ctpa-pricing-admin",
-    serviceCatalogAdminFunction:"dot-service-catalog-admin",
+    planCatalogAdminFunction:"dot-plan-catalog-admin",
     storageKey:"s4u-dot-management-session"
   });
   window.DOT_PORTAL_CONFIG=config;

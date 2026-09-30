@@ -117,5 +117,6 @@
 
 /* C/TPA testing pricing management */
 .dot-price-edit{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.dot-price-edit input,.ctpaPrice{max-width:112px;min-height:36px;padding:7px 9px;border:1px solid #cfd9e6;border-radius:7px;background:#fff;color:#1f3857}.dot-price-edit input:focus,.ctpaPrice:focus{outline:none;border-color:var(--dot-blue);box-shadow:0 0 0 3px rgba(36,70,127,.09)}
-/* Public website service catalog editor */
-.dot-filter-row{display:grid;grid-template-columns:minmax(260px,1fr) 220px 180px;gap:10px}.dot-filter-row input,.dot-filter-row select{min-height:42px;border:1px solid #cfdae8;border-radius:8px;padding:9px 11px;background:#fff;color:#17365f}.dot-checkbox-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}.dot-check{display:flex;gap:11px;align-items:flex-start;border:1px solid #d6e0ec;border-radius:10px;padding:13px;background:#fbfdff}.dot-check input{margin-top:3px}.dot-check span{display:grid;gap:3px}.dot-check small,.dot-help{color:#6d8199;font-size:12px;line-height:1.5}@media(max-width:860px){.dot-filter-row,.dot-checkbox-grid{grid-template-columns:1fr}}
+
+/* Production plan catalog */
+.plan-feature-group{margin:0 0 22px}.plan-feature-group h3{margin:0 0 10px;color:#0b3769;font-size:15px}.dot-field small{display:block;margin-top:6px;color:#7890aa;font-size:11px;line-height:1.35}
