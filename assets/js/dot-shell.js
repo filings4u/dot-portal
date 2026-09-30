@@ -8,7 +8,7 @@ const groups=[
  ['Programs & Testing',[['dot-programs.html','Programs','≡'],['dot-pools.html','Consortiums & Pools','⊙'],['dot-random-selections.html','Random Selections','⌁'],['dot-testing-orders.html','Testing Orders','✚'],['dot-results.html','Results','✓']]],
  ['Compliance',[['dot-compliance.html','Compliance Cases','⚑'],['dot-clearinghouse.html','Clearinghouse','⇄'],['dot-return-to-duty.html','Return-to-Duty / SAP','↺'],['dot-agencies.html','DOT Agencies','✦']]],
  ['Commerce & Records',[['dot-catalog.html','Website Plans & Pricing','$'],['dot-ctpa-pricing.html','C/TPA Testing Pricing','¢'],['dot-orders.html','Service Orders','▤'],['dot-invoices.html','Invoices','▧'],['dot-documents.html','Documents','▱'],['dot-training.html','Training Records','△']]],
- ['Administration',[['dot-notifications.html','Notifications','●'],['dot-support.html','Support','?'],['dot-integrations.html','Integrations','⌘'],['dot-settings.html','Settings','⚙'],['dot-audit.html','Audit History','☷']]]
+ ['Administration',[['dot-notifications.html','Notifications','●'],['dot-demo-management.html','Demo Management','◫'],['dot-support.html','Support','?'],['dot-integrations.html','Integrations','⌘'],['dot-settings.html','Settings','⚙'],['dot-audit.html','Audit History','☷']]]
 ];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function initials(v){return String(v||'DOT').split(/\s+|@/).filter(Boolean).slice(0,2).map(x=>x[0]?.toUpperCase()).join('')||'DOT'}

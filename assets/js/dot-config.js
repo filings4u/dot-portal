@@ -23,6 +23,7 @@
     adminOrderFunction:"dot-admin-order",
     pricingAdminFunction:"dot-ctpa-pricing-admin",
     planCatalogAdminFunction:"dot-plan-catalog-admin",
+    demoManagementFunction:"dot-demo-management",
     storageKey:"s4u-dot-management-session"
   });
   window.DOT_PORTAL_CONFIG=config;
