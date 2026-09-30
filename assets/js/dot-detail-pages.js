@@ -63,6 +63,10 @@ async function ctpaDetailPage(){
  const memberships=d.memberships||[],primary=memberships.find(x=>x.is_primary)||memberships[0]||null,primaryProfile=primary?.profiles||{},primaryEmail=primaryProfile.email||org.primary_email||c.support_email||'',primaryName=[primaryProfile.first_name,primaryProfile.last_name].filter(Boolean).join(' ')||primaryEmail||'—';
  const tickets=d.support_tickets||d.tickets||[],invoices=d.invoices||[],events=(d.audit_events||d.audit||d.events||[]).slice(0,10);
  const accountStatus=portalEnabled?'granted':'revoked';
+ const meta={...(org.metadata||{}),...(c.metadata||{})},der=meta.der||{};
+ const detailValue=(...vals)=>{for(const v of vals){if(v!==undefined&&v!==null&&String(v).trim()!=='')return v}return '—'};
+ const countryName=v=>String(v||'').toUpperCase()==='US'?'United States of America':detailValue(v);
+ const primaryIdLabel=v=>({ein:'EIN / Federal Tax ID',dot_number:'USDOT Number',duns:'D-U-N-S Number',other:'Other'})[v]||detailValue(v);
  $('#dotPageBody').innerHTML=`
  <div class="dot-metrics">
    <article class="dot-metric"><span>Employers</span><strong>${esc(d.counts?.employers??0)}</strong><small>Managed accounts</small></article>
@@ -70,7 +74,42 @@ async function ctpaDetailPage(){
    <article class="dot-metric"><span>Programs</span><strong>${esc(d.counts?.programs??0)}</strong><small>DOT programs</small></article>
    <article class="dot-metric"><span>Testing Orders</span><strong>${esc(d.counts?.testing_orders??0)}</strong><small>Portfolio activity</small></article>
  </div>
- <div class="dot-grid">
+ <div class="dot-card" style="margin-top:15px">
+   <div class="dot-card-head"><div><h2>C/TPA Company Information</h2><p>All company, primary contact, and DER fields captured when this C/TPA account was created.</p></div></div>
+   <div class="dot-card-body">
+     ${kv({
+       company:detailValue(org.legal_name,c.legal_name),
+       company_code:detailValue(c.company_code,org.company_code,meta.company_code),
+       street_address_1:detailValue(org.address_line1,c.address_line1,meta.address_line1),
+       street_address_2:detailValue(org.address_line2,c.address_line2,meta.address_line2),
+       city:detailValue(org.city,c.city,meta.city),
+       state:detailValue(org.state,c.state,meta.state),
+       zip:detailValue(org.postal_code,c.postal_code,c.zip,meta.postal_code,meta.zip),
+       province:detailValue(org.province,c.province,meta.province),
+       country:countryName(detailValue(org.country,c.country,meta.country)),
+       office_phone:detailValue(org.phone,c.support_phone,c.phone,meta.phone),
+       office_fax:detailValue(c.office_fax,org.office_fax,meta.office_fax),
+       time_zone:detailValue(c.time_zone,org.time_zone,meta.time_zone),
+       company_contact_first_name:detailValue(primaryProfile.first_name,meta.contact_first_name),
+       company_contact_last_name:detailValue(primaryProfile.last_name,meta.contact_last_name),
+       company_contact_phone:detailValue(primaryProfile.phone,primary?.phone,meta.contact_phone),
+       company_contact_email:detailValue(primaryEmail,meta.contact_email),
+       website:detailValue(org.website,c.website,meta.website),
+       lab_accounts:meta.lab_account_not_required===true?'Not Required':'Available',
+       primary_id_type:primaryIdLabel(detailValue(c.primary_id_type,org.primary_id_type,meta.primary_id_type)),
+       der_contact_first_name:detailValue(c.der_first_name,org.der_first_name,der.first_name),
+       der_contact_last_name:detailValue(c.der_last_name,org.der_last_name,der.last_name),
+       der_contact_phone:detailValue(c.der_phone,org.der_phone,der.phone),
+       der_contact_email:detailValue(c.der_email,org.der_email,der.email),
+       locations:'Available'
+     })}
+     <div class="dot-actions" style="margin-top:16px">
+       <button class="dot-btn" id="manageLabAccounts" type="button" ${meta.lab_account_not_required===true?'disabled':''}>Lab Account Details</button>
+       <button class="dot-btn" id="manageLocations" type="button">Locations</button>
+     </div>
+   </div>
+ </div>
+ <div class="dot-grid" style="margin-top:15px">
    <article class="dot-card half">
      <div class="dot-card-head"><div><h2>Account</h2><p>${esc(org.legal_name||org.display_name||id)}</p></div>${badge(c.status)}</div>
      <div class="dot-card-body">
@@ -143,6 +182,9 @@ async function ctpaDetailPage(){
    </article>
  </div>`;
  $('#saveCtpa').onclick=async()=>{try{await DOTApi.call('save_ctpa_profile',{ctpa:{id:c.id,legal_name:$('#ctpaLegal').value,display_name:$('#ctpaDisplay').value,support_email:$('#ctpaEmail').value,support_phone:$('#ctpaPhone').value,status:$('#ctpaStatus').value,white_label_enabled:$('#ctpaWhite').checked}});notice('C/TPA account updated.')}catch(e){notice(e.message,true)}};
+ const labBtn=$('#manageLabAccounts'),locBtn=$('#manageLocations');
+ if(labBtn)labBtn.onclick=()=>notice(meta.lab_account_not_required===true?'This C/TPA is marked as not requiring a lab account.':'Lab Account Details is ready for the account-specific lab workflow.');
+ if(locBtn)locBtn.onclick=()=>notice('Locations is ready for the account-specific location workflow.');
  $('#toggleUnlimited').onclick=async()=>{try{await DOTApi.call('set_ctpa_unlimited_access',{ctpa_id:id,enabled:!unlimited,reason:'DOT Management Portal administrative override'});notice(!unlimited?'Unlimited access granted. Renewal reminders and nonpayment suspension are bypassed.':'Unlimited access revoked. Normal subscription renewal rules now apply.');return ctpaDetailPage()}catch(e){notice(e.message,true)}};
  $('#togglePortal').onclick=async()=>{try{await DOTApi.call('set_portal_access',{organization_id:org.id,portal_code:'ctpa_dot',enabled:!portalEnabled,tenant_id:c.tenant_id});notice(!portalEnabled?'C/TPA portal access granted.':'C/TPA portal access revoked.');return ctpaDetailPage()}catch(e){notice(e.message,true)}};
  $('#resendCtpaReceipt').onclick=async()=>{try{const out=await DOTApi.invoke(DOT_PORTAL_CONFIG.orderingFunction,{action:'resend_ctpa_receipt',ctpa_id:id});notice(out.receipt?.sent===true?`Receipt ${out.order_number||''} sent successfully.`:`Receipt resend was attempted, but email delivery was not confirmed${out.receipt?.reason?': '+out.receipt.reason:''}.`,out.receipt?.sent!==true)}catch(e){notice(e.message,true)}};

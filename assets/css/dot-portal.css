@@ -20,3 +20,79 @@
 
 /* C/TPA account ordering */
 .dot-order-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.dot-order-choice{display:flex;align-items:flex-start;gap:12px;min-height:112px;padding:15px;border:1px solid var(--dot-line);border-radius:10px;background:#fff;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease}.dot-order-choice:hover{border-color:#b7c8dd;box-shadow:0 8px 20px rgba(16,38,74,.06);transform:translateY(-1px)}.dot-order-choice:has(input:checked){border-color:var(--dot-orange);box-shadow:0 0 0 3px rgba(239,108,0,.08)}.dot-order-choice input{margin-top:4px;flex:0 0 auto}.dot-order-choice span{display:grid;gap:5px;min-width:0}.dot-order-choice strong{color:var(--dot-navy);font-size:13px}.dot-order-choice b{color:var(--dot-orange);font-size:15px}.dot-order-choice small{color:var(--dot-muted);font-size:10px;line-height:1.45}.dot-order-choice.compact{min-height:96px}.dot-card .dot-table-wrap{border-radius:0 0 11px 11px}.dot-actions .dot-btn[disabled],.dot-btn:disabled{opacity:.55;cursor:not-allowed;pointer-events:none}@media(max-width:700px){.dot-order-grid{grid-template-columns:1fr}.dot-order-choice{min-height:0}.dot-card[style*="grid-column:span 8"],.dot-card[style*="grid-column:span 4"]{grid-column:span 12!important}}
+
+/* Dedicated C/TPA account creation */
+.ctpa-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}.ctpa-span-2{grid-column:1/-1}.ctpa-split{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ctpa-inline-control{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.ctpa-feature-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.ctpa-feature{border:1px solid #d7e0ee;border-radius:10px;padding:13px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center;background:#fff}.ctpa-feature>div{min-width:0}.ctpa-feature strong{display:block;color:#0b356d}.ctpa-feature small{display:block;margin-top:4px;color:#6b7f9c;line-height:1.45}.ctpa-feature select{grid-column:1/-1}.ctpa-create-footer{display:flex;align-items:center;justify-content:space-between;gap:20px}.ctpa-create-footer p{margin:4px 0 0;color:#667b98}.ctpa-create-button{min-width:170px}.dot-field input[readonly]{background:#eef2f7;color:#59708d;font-weight:700}@media(max-width:900px){.ctpa-form-grid,.ctpa-feature-list{grid-template-columns:1fr}.ctpa-span-2{grid-column:auto}.ctpa-create-footer{align-items:stretch;flex-direction:column}.ctpa-create-button{width:100%}}@media(max-width:560px){.ctpa-split{grid-template-columns:1fr}}
+
+/* C/TPA creation — control alignment fixes */
+.ctpa-inline-control{
+  min-height:42px;
+  justify-content:flex-start;
+}
+.ctpa-inline-control .dot-check{
+  display:inline-flex;
+  width:auto;
+  min-height:38px;
+  align-items:center;
+  gap:8px;
+  padding:8px 11px;
+  margin:0;
+  border:1px solid var(--dot-line);
+  border-radius:8px;
+  background:#fff;
+  color:#40536e;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0;
+  text-transform:none;
+  cursor:pointer;
+}
+.ctpa-inline-control .dot-check input[type="checkbox"],
+.dot-field .ctpa-inline-control input[type="checkbox"]{
+  appearance:auto;
+  -webkit-appearance:checkbox;
+  width:16px;
+  height:16px;
+  min-height:0;
+  padding:0;
+  margin:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  flex:0 0 16px;
+  accent-color:var(--dot-blue);
+}
+.ctpa-inline-control .dot-check input[type="checkbox"]:focus{
+  box-shadow:none;
+  outline:2px solid rgba(36,70,127,.18);
+  outline-offset:2px;
+}
+.ctpa-feature{
+  min-height:118px;
+  align-content:start;
+}
+.ctpa-feature select{
+  grid-column:1/-1;
+  width:100%;
+  min-height:40px;
+  padding:8px 36px 8px 11px;
+  border:1px solid #cfd9e6;
+  border-radius:8px;
+  background:#fff;
+  color:#1f3857;
+  outline:none;
+  cursor:pointer;
+}
+.ctpa-feature select:focus{
+  border-color:var(--dot-blue);
+  box-shadow:0 0 0 3px rgba(36,70,127,.09);
+}
+.ctpa-feature .dot-status-pill{
+  align-self:start;
+  white-space:nowrap;
+}
+@media(max-width:560px){
+  .ctpa-inline-control{align-items:stretch;flex-direction:column}
+  .ctpa-inline-control .dot-check{width:100%;justify-content:flex-start}
+}
