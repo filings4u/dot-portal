@@ -193,3 +193,15 @@
 .dot-btn.danger{border-color:#efc4c0;color:#b42318;background:#fff7f6}.dot-btn.danger:hover{background:#fff0ee}
 .dot-modal-backdrop{position:fixed;inset:0;z-index:999;background:rgba(14,38,66,.5);display:grid;place-items:center;padding:24px}.dot-modal-backdrop[hidden]{display:none}.dot-modal-card{width:min(760px,100%);max-height:90vh;overflow:auto;border-radius:12px;background:#fff;box-shadow:0 24px 70px rgba(8,35,65,.25);border:1px solid var(--dot-line)}
 @media(max-width:1000px){.demo-admin-page .dot-grid>.dot-card{grid-column:span 12!important}}
+
+/* Demo management multi-date calendar */
+.demo-admin-calendar{border:1px solid var(--dot-line);border-radius:10px;overflow:hidden;background:#fff}
+.demo-admin-calendar-head{display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid var(--dot-line)}
+.demo-admin-calendar-head strong{font-size:12px;color:var(--dot-navy)}
+.demo-admin-weekdays,.demo-admin-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.demo-admin-weekdays span{padding:7px 2px;text-align:center;font-size:8px;font-weight:800;text-transform:uppercase;color:var(--dot-muted);border-bottom:1px solid var(--dot-line)}
+.demo-admin-day{min-height:52px;border:0;border-right:1px solid var(--dot-line-soft);border-bottom:1px solid var(--dot-line-soft);background:#fff;color:var(--dot-navy);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.demo-admin-day:nth-child(7n){border-right:0}.demo-admin-day:hover:not(:disabled){background:#f5f8fc}.demo-admin-day.empty{background:#f8fafc;cursor:default}
+.demo-admin-day.selected{background:#eaf2ff;box-shadow:inset 0 0 0 2px #245b9e}.demo-admin-day.blocked{background:#f2f4f7;color:#98a2b3;text-decoration:line-through;cursor:not-allowed}
+.demo-admin-day span{font-size:11px;font-weight:800}.demo-admin-day small{font-size:7px;text-transform:uppercase;letter-spacing:.04em}
+.demo-calendar-actions{margin-top:10px;justify-content:flex-start}.demo-selection-count{margin:10px 0;font-size:10px;color:var(--dot-muted)}.demo-selection-count strong{color:var(--dot-navy)}
