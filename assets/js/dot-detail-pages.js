@@ -53,11 +53,12 @@ async function ctpaDetailPage(){
  shell(window.DOT_AUTH_STATE,'C/TPA Account Control','Complete account administration for the selected C/TPA — company profile, subscription, access, users, features, locations, lab accounts, billing, and activity.',`<a class="dot-btn" href="dot-ctpas.html">Back to C/TPAs</a><a class="dot-btn primary" href="dot-orders.html?ctpa_id=${encodeURIComponent(id||'')}">Create Order</a><a class="dot-btn" href="dot-portal-detail.html?portal=ctpa_dot">C/TPA Portal Control</a>`);
  if(!id){notice('C/TPA id is required.',true);return}
  const adminFn=DOT_PORTAL_CONFIG.ctpaAdminFunction||'dot-ctpa-admin-data';
- const [d,features,labData,locationData]=await Promise.all([
+ const [d,features,labData,locationData,masterOrderData]=await Promise.all([
    DOTApi.call('customer_detail',{customer_type:'ctpa',customer_id:id}),
    DOTApi.config('features').catch(()=>({})),
    DOTApi.invoke(adminFn,{action:'list_lab_accounts',ctpa_id:id}).catch(()=>({lab_accounts:[]})),
-   DOTApi.invoke(adminFn,{action:'list_locations',ctpa_id:id}).catch(()=>({locations:[]}))
+   DOTApi.invoke(adminFn,{action:'list_locations',ctpa_id:id}).catch(()=>({locations:[]})),
+   DOTApi.call('orders').catch(()=>({orders:[]}))
  ]);
  const c=d.customer;if(!c){notice('C/TPA account not found.',true);return}
  const overrideState=await DOTApi.call('get_ctpa_access_override',{ctpa_id:id}).catch(()=>({unlimited:false,override:null})),unlimited=overrideState.unlimited===true;
@@ -66,6 +67,7 @@ async function ctpaDetailPage(){
  const portalAccess=(d.portal_access||[]).find(x=>x.portal_code==='ctpa_dot')||null,portalEnabled=portalAccess?.enabled===true;
  const memberships=d.memberships||[],primary=memberships.find(x=>x.is_primary)||memberships[0]||null,primaryProfile=primary?.profiles||{},primaryEmail=primaryProfile.email||org.primary_email||c.support_email||'',primaryName=[primaryProfile.first_name,primaryProfile.last_name].filter(Boolean).join(' ')||primaryEmail||'—';
  const tickets=d.support_tickets||d.tickets||[],invoices=d.invoices||[],events=(d.audit_events||d.audit||d.events||[]).slice(0,10),labs=labData.lab_accounts||[],locations=locationData.locations||[];
+ const orderEmail=String(primaryEmail||org.primary_email||c.support_email||'').trim().toLowerCase(),masterOrders=(masterOrderData.orders||[]).filter(o=>String(o.customer_email||'').trim().toLowerCase()===orderEmail||String(o.metadata?.ctpa_id||'')===id).sort((a,b)=>Date.parse(b.created_at||0)-Date.parse(a.created_at||0));
  const accountStatus=portalEnabled?'granted':'revoked';
  const meta={...(org.metadata||{}),...(c.metadata||{})},der=meta.der||{};
  const val=(...vals)=>{for(const v of vals){if(v!==undefined&&v!==null&&String(v).trim()!=='')return v}return ''};
@@ -98,7 +100,7 @@ async function ctpaDetailPage(){
    <article class="dot-metric"><span>Employers</span><strong>${esc(d.counts?.employers??0)}</strong><small>Managed accounts</small></article>
    <article class="dot-metric"><span>Portal Users</span><strong>${esc(activeUsers)}</strong><small>${esc(memberships.length)} total users</small></article>
    <article class="dot-metric"><span>Enabled Features</span><strong>${esc(enabledCount)}</strong><small>${esc(overrideCount)} account overrides</small></article>
-   <article class="dot-metric"><span>Testing Orders</span><strong>${esc(d.counts?.testing_orders??0)}</strong><small>Portfolio activity</small></article>
+   <article class="dot-metric"><span>Testing Orders</span><strong>${esc(d.counts?.testing_orders??0)}</strong><small>Portfolio activity</small></article><article class="dot-metric"><span>screenings4u Orders</span><strong>${esc(masterOrders.length)}</strong><small>All orders for this C/TPA email</small></article>
  </div>
 
  <section id="company" class="dot-account-section">
@@ -222,6 +224,7 @@ async function ctpaDetailPage(){
        ${kv({support_tickets:tickets.length,open_support:tickets.filter(x=>!['resolved','closed'].includes(String(x.status))).length,invoices:invoices.length,outstanding_invoices:invoices.filter(x=>Number(x.amount_due||0)>0).length,portal_users:memberships.length})}
        <div class="dot-actions" style="margin-top:16px"><button class="dot-btn primary" id="resendCtpaReceipt">Resend Latest Receipt</button><a class="dot-btn" href="dot-invoices.html?ctpa_id=${encodeURIComponent(id)}">Billing & Invoices</a><a class="dot-btn" href="dot-ctpa-pricing.html?ctpa_id=${encodeURIComponent(id)}">Testing Pricing</a><a class="dot-btn" href="dot-support.html?ctpa_id=${encodeURIComponent(id)}">Support</a></div>
      </div></article>
+     <article class="dot-card" style="grid-column:1/-1"><div class="dot-card-head"><div><h2>screenings4u Order History</h2><p>All master orders associated with this C/TPA email, including later purchases placed for the same company.</p></div><a class="dot-btn small primary" href="dot-orders.html?ctpa_id=${encodeURIComponent(id)}">Create Order</a></div><div class="dot-table-wrap"><table class="dot-table"><thead><tr><th>Order</th><th>Created</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead><tbody>${masterOrders.length?masterOrders.map(o=>`<tr><td><strong>${esc(o.order_number||o.id)}</strong><small>${esc(o.tracking_number||'')}</small></td><td>${esc(o.created_at||'—')}</td><td>${esc(new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(o.total||0)))}</td><td>${badge(o.payment_status||'unpaid')}</td><td>${badge(o.status||'pending')}</td></tr>`).join(''):'<tr><td colspan="5"><div class="dot-empty">No screenings4u orders are associated with this C/TPA yet.</div></td></tr>'}</tbody></table></div></article>
      <article class="dot-card half"><div class="dot-card-head"><div><h2>Recent Audit</h2><p>Latest management actions affecting this C/TPA.</p></div><a class="dot-btn small" href="dot-audit.html?ctpa_id=${encodeURIComponent(id)}">Full Audit Log</a></div><div class="dot-card-body">
        ${events.length?events.map(e=>`<div class="dot-audit-row"><div><strong>${esc(e.action||e.event_type||'Activity')}</strong><small>${esc(e.resource_type||'record')}</small></div><span>${esc(e.event_at||e.created_at||'')}</span></div>`).join(''):'<div class="dot-empty compact">No recent audit records.</div>'}
      </div></article>
