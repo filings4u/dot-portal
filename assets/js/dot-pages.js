@@ -13,7 +13,7 @@ function metrics(items){return `<div class="dot-metrics">${items.map(x=>metric(.
 function get(d,...keys){for(const k of keys){if(Array.isArray(d?.[k]))return d[k]}return []}
 function name(x){return esc(x?.legal_name||x?.name||x?.organizations?.legal_name||[x?.first_name,x?.last_name].filter(Boolean).join(' ')||x?.email||x?.id||'—')}
 const listPages={
- 'dot-ctpas.html':{action:'ctpas',title:'DOT C/TPAs',copy:'Manage every C/TPA account, subscription, features, staff, customer portfolio, branding, billing, support, and portal controls.',headers:['C/TPA','Contact','Portal','Status','Manage'],rows:d=>get(d,'ctpas').map(x=>[name(x),esc(x.support_email||x.organizations?.primary_email||'—'),badge(x.portal_status||'configured'),badge(x.status),`<div class="dot-inline-actions"><a class="dot-btn small primary" href="dot-ctpa-detail.html?id=${encodeURIComponent(x.id)}">Manage</a><a class="dot-btn small" href="dot-ctpa-edit.html?id=${encodeURIComponent(x.id)}">Edit C/TPA</a></div>`])},
+ 'dot-ctpas.html':{action:'ctpas',title:'DOT C/TPAs',copy:'Manage every C/TPA account, subscription, features, staff, customer portfolio, branding, billing, support, and portal controls.',headers:['C/TPA','Contact','Portal','Status','Manage'],rows:d=>get(d,'ctpas').map(x=>[name(x),esc(x.support_email||x.organizations?.primary_email||'—'),badge(x.portal_status||'configured'),badge(x.status),`<a class="dot-btn small primary" href="dot-ctpa-detail.html?id=${encodeURIComponent(x.id)}">Manage</a>`])},
  'dot-employers.html':{action:'employers',title:'DOT Employers',copy:'Manage direct and C/TPA-sponsored employers, USDOT details, agencies, and status.',headers:['Employer','USDOT / MC','Agency','Status'],rows:d=>get(d,'employers').map(x=>[name(x),esc([x.dot_number,x.mc_number].filter(Boolean).join(' / ')||'—'),esc(x.applicable_dot_agency||x.dot_agency||'—'),badge(x.status)])},
  'dot-owner-operators.html':{action:'owner_operators',title:'Owner-Operators',copy:'Manage FMCSA owner-operator accounts and consortium participation.',headers:['Owner-Operator','USDOT / MC','Consortium','Status'],rows:d=>get(d,'owner_operators').map(x=>[name(x),esc([x.dot_number,x.mc_number].filter(Boolean).join(' / ')||'—'),esc(x.consortium_name||x.pool_name||'—'),badge(x.status)])},
  'dot-drivers.html':{action:'drivers',title:'DOT Drivers',copy:'Manage safety-sensitive drivers and DOT workforce records.',headers:['Driver','Employer','Agency / CDL','Status'],rows:d=>get(d,'drivers','employees').map(x=>[name(x),esc(x.employer_name||x.employer_id||'—'),esc([x.dot_agency,x.cdl_number].filter(Boolean).join(' · ')||'—'),badge(x.status||x.employment_status)])},
@@ -55,223 +55,43 @@ async function loadCtpas(){
 function money(v){const n=Number(v||0);return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number.isFinite(n)?n:0)}
 async function loadOrders(){
  const requestedCtpa=new URLSearchParams(location.search).get('ctpa_id')||'';
- const sortSubs=list=>[...(list||[])].sort((a,b)=>{
-   const rank=x=>({active:60,past_due:50,suspended:40,pending:30,trialing:20,trial:20,cancelled:0,expired:0}[String(x?.status||'').toLowerCase()]||0);
-   const rd=rank(b)-rank(a);if(rd)return rd;
-   return new Date(b?.updated_at||b?.created_at||b?.renewal_date||0)-new Date(a?.updated_at||a?.created_at||a?.renewal_date||0)
- });
- renderBase({
-   title:'Create C/TPA Subscription Order',
-   copy:requestedCtpa?'Create a new C/TPA software subscription order. This workflow does not create trial subscriptions and does not sell screenings4u testing services.':'Select an existing C/TPA account to create a C/TPA software subscription order.',
-   actions:'<a class="dot-btn" href="dot-recent-orders.html">Recent Orders</a><a class="dot-btn" href="dot-ctpas.html">C/TPA Accounts</a><a class="dot-btn" href="dot-invoices.html">Billing & Invoices</a>'
- });
-
- const requests=[
-   DOTApi.invoke(DOT_PORTAL_CONFIG.provisioningFunction,{action:'options'}),
-   DOTApi.call('ctpas').catch(()=>({ctpas:[]}))
- ];
+ renderBase({title:requestedCtpa?'C/TPA Order & Subscription Management':'C/TPA Account & Order Creation',copy:requestedCtpa?'Create a new subscription/order, bill the C/TPA, add services, and control activation without creating a duplicate account.':'Create real DOT C/TPA accounts, select a subscription, add services/features, collect payment or mark it manual, provision portal access, and send branded invitations.',actions:'<a class="dot-btn" href="dot-ctpas.html">C/TPA Accounts</a><a class="dot-btn" href="dot-invoices.html">Billing & Invoices</a>'});
+ const requests=[DOTApi.invoke(DOT_PORTAL_CONFIG.provisioningFunction,{action:'options'}),DOTApi.invoke(DOT_PORTAL_CONFIG.orderingFunction,{action:'catalog'}),DOTApi.call('orders').catch(()=>({orders:[]}))];
  if(requestedCtpa)requests.push(DOTApi.call('customer_detail',{customer_type:'ctpa',customer_id:requestedCtpa}));
- const loaded=await Promise.all(requests),opts=loaded[0],ctpaList=loaded[1],existing=loaded[2]||null;
-
- if(!requestedCtpa){
-   const accounts=get(ctpaList,'ctpas');
-   const accountRows=accounts.map(x=>[
-     name(x),
-     esc(x.support_email||x.organizations?.primary_email||'—'),
-     badge(x.status||'active'),
-     `<div class="dot-inline-actions"><a class="dot-btn small primary" href="dot-orders.html?ctpa_id=${encodeURIComponent(x.id)}">Create Order</a><a class="dot-btn small" href="dot-ctpa-edit.html?id=${encodeURIComponent(x.id)}">Edit C/TPA</a><a class="dot-btn small" href="dot-ctpa-detail.html?id=${encodeURIComponent(x.id)}">Manage</a></div>`
-   ]);
-   $('#dotPageBody').innerHTML=`
-    <div class="dot-card">
-      <div class="dot-card-head">
-        <div><h2>Select C/TPA Account</h2><p>This page creates C/TPA software subscription orders only. Testing, drug screens, physicals, and other screenings4u.com services are not sold here.</p></div>
-        <a class="dot-btn" href="dot-recent-orders.html">View Recent Orders</a>
-      </div>
-      ${table(['C/TPA','Primary Email','Status','Actions'],accountRows)}
-    </div>`;
-   return;
- }
-
- const existingCtpa=existing?.customer||null,
-       existingOrg=existing?.organization||existingCtpa?.organizations||{},
-       subs=sortSubs(existing?.subscriptions||[]),
-       currentSub=subs[0]||null,
-       primary=(existing?.memberships||[]).find(x=>x.is_primary)||(existing?.memberships||[])[0]||null,
-       profile=primary?.profiles||{};
- if(!existingCtpa)throw new Error('The selected C/TPA account was not found.');
-
- const plans=(opts.dot?.plans||[])
-   .filter(x=>String(x.code||'').startsWith('dot_ctpa_')&&!x.billing_model?.test_only&&x.active!==false)
-   .sort((a,b)=>Number(a.billing_model?.amount||a.monthly_price||0)-Number(b.billing_model?.amount||b.monthly_price||0));
-
- const selectedPlanId=(!['trial','trialing'].includes(String(currentSub?.status||'').toLowerCase())&&currentSub?.plan_id)||plans[0]?.id||'';
- const planCards=plans.map((p,i)=>`<label class="dot-order-choice"><input type="radio" name="ctpaPlan" value="${esc(p.id)}" data-name="${esc(p.name||p.code)}" data-price="${esc(p.billing_model?.amount??p.monthly_price??0)}" ${(selectedPlanId===p.id||(!selectedPlanId&&i===0))?'checked':''}><span><strong>${esc(p.name)}</strong><b>${money(p.billing_model?.amount??p.monthly_price??0)}/${esc(p.billing_model?.frequency||'month')}</b><small>${esc(p.description||p.code)}</small></span></label>`).join('');
-
- const accountName=existingOrg.legal_name||existingOrg.dba_name||existingCtpa.legal_name||requestedCtpa;
- const email=profile.email||existingOrg.primary_email||existingCtpa.support_email||'';
- const first=profile.first_name||'',last=profile.last_name||'';
- const currentPlan=plans.find(x=>x.id===currentSub?.plan_id)||currentSub?.plans||null;
-
- $('#dotPageBody').innerHTML=`
-  <div class="dot-banner">
-    <div><strong>${esc(accountName)}</strong><span>This order creates a NEW active subscription record. Any existing trial or current subscription is kept for history and superseded.</span></div>
-    <div class="dot-inline-actions"><a class="dot-btn" href="dot-orders.html">Choose Another C/TPA</a><a class="dot-btn" href="dot-recent-orders.html">Recent Orders</a><a class="dot-btn" href="dot-ctpa-detail.html?id=${encodeURIComponent(requestedCtpa)}">View C/TPA</a><a class="dot-btn primary" href="dot-ctpa-edit.html?id=${encodeURIComponent(requestedCtpa)}">Edit C/TPA</a></div>
-  </div>
-
-  <div class="dot-grid">
-   <article class="dot-card half">
-    <div class="dot-card-head"><div><h2>1. C/TPA Account</h2><p>The account receiving this software subscription order.</p></div>${badge(existingCtpa.status||'active')}</div>
-    <div class="dot-card-body">
-      ${metrics([['C/TPA',accountName,'Existing account'],['Primary Email',email||'—','Portal administrator']])}
-      <div class="dot-actions" style="margin-top:14px"><a class="dot-btn" href="dot-ctpa-edit.html?id=${encodeURIComponent(requestedCtpa)}">Edit C/TPA</a></div>
-    </div>
-   </article>
-
-   <article class="dot-card half">
-    <div class="dot-card-head"><div><h2>Current Subscription</h2><p>Reference only. Completing the new order creates a new subscription ID.</p></div>${badge(currentSub?.status||'none')}</div>
-    <div class="dot-card-body">
-      <div class="dot-kpi-list">
-       <div class="dot-kpi-row"><span>Plan</span><strong>${esc(currentPlan?.name||currentPlan?.code||'None')}</strong></div>
-       <div class="dot-kpi-row"><span>Status</span><strong>${esc(currentSub?.status||'None')}</strong></div>
-       <div class="dot-kpi-row"><span>Renewal</span><strong>${esc(fmtDate(currentSub?.renewal_date||currentSub?.stripe_current_period_end))}</strong></div>
-       <div class="dot-kpi-row"><span>Subscription ID</span><strong>${esc(currentSub?.id||'None')}</strong></div>
-      </div>
-    </div>
-   </article>
-  </div>
-
-  <div class="dot-card" style="margin-top:15px">
-   <div class="dot-card-head"><div><h2>2. Order Details</h2><p>C/TPA software subscription only. No screenings4u.com service catalog is included.</p></div></div>
-   <div class="dot-card-body">
-    <div class="dot-field-grid">
-     <div class="dot-field"><label>Order Action</label><select id="orderType"><option value="new_subscription">Create New Subscription</option><option value="plan_change">Replace / Change Plan</option><option value="renewal">Renew as New Subscription</option></select></div>
-     <div class="dot-field"><label>Billing Frequency</label><select id="billingFrequency"><option value="monthly">Monthly</option><option value="annual">Annual</option></select></div>
-     <div class="dot-field"><label>Payment Status</label><select id="activationMode"><option value="manual_paid">Paid / manual payment</option><option value="complimentary">Complimentary / management override</option></select></div>
-     <div class="dot-field"><label>Payment Reference</label><input id="paymentRef" placeholder="Check, ACH, invoice, comp, etc."></div>
-     <div class="dot-field"><label>Internal Notes</label><input id="orderNotes" placeholder="Optional management note"></div>
-     <div class="dot-field"><label>Order Total</label><input id="selectedPlanTotal" readonly></div>
-    </div>
-    <label class="dot-check" style="margin-top:14px"><input id="sendInviteAfter" type="checkbox" checked> Send / refresh the C/TPA portal invitation after activation</label>
-    <div class="dot-help">No trial mode is used. A completed order creates a new <strong>active</strong> subscription record and the previous subscription is superseded.</div>
-   </div>
-  </div>
-
-  <div class="dot-card" style="margin-top:15px">
-   <div class="dot-card-head"><div><h2>3. Subscription Plan</h2><p>Select the C/TPA software plan for this order.</p></div></div>
-   <div class="dot-card-body"><div class="dot-order-grid">${planCards||'<div class="dot-empty">No active C/TPA subscription plans are configured.</div>'}</div></div>
-  </div>
-
-  <div class="dot-card" style="margin-top:15px">
-   <div class="dot-card-head"><div><h2>4. Review & Create Order</h2><p>The previous subscription remains in history. The new subscription becomes active immediately.</p></div></div>
-   <div class="dot-card-body">
-    <div id="orderReview" class="dot-banner"></div>
-    <div class="dot-actions" style="margin-top:18px"><button class="dot-btn primary" id="createCtpaOrder">Create C/TPA Subscription Order</button><a class="dot-btn" href="dot-recent-orders.html">Cancel</a></div>
-   </div>
-  </div>
-  <div id="ctpaCreateResult"></div>`;
-
- const syncReview=()=>{
-   const r=document.querySelector('input[name="ctpaPlan"]:checked');
-   const p=Number(r?.dataset.price||0);
-   const freq=$('#billingFrequency').value;
-   $('#selectedPlanTotal').value=`${money(p)} / ${freq==='annual'?'year':'month'}`;
-   const action=$('#orderType').selectedOptions[0]?.textContent||'Create New Subscription';
-   const payment=$('#activationMode').selectedOptions[0]?.textContent||'Paid / manual payment';
-   $('#orderReview').innerHTML=`<div><strong>${esc(r?.dataset.name||'Choose a plan')}</strong><span>${esc(action)} · ${esc(payment)} · ${esc(freq)}</span></div><strong>${money(p)}</strong>`;
- };
- document.querySelectorAll('input[name="ctpaPlan"]').forEach(r=>r.addEventListener('change',syncReview));
- ['billingFrequency','orderType','activationMode'].forEach(id=>document.getElementById(id)?.addEventListener('change',syncReview));
- syncReview();
-
- $('#createCtpaOrder').onclick=async()=>{
-   const btn=$('#createCtpaOrder');
-   try{
-     const planRadio=document.querySelector('input[name="ctpaPlan"]:checked'),
-           planId=planRadio?.value,
-           mode=$('#activationMode').value,
-           orderType=$('#orderType').value,
-           frequency=$('#billingFrequency').value,
-           notes=$('#orderNotes').value.trim(),
-           paymentRef=$('#paymentRef').value.trim();
-
-     if(!planId)throw new Error('Choose a C/TPA subscription plan.');
-     if(!email)throw new Error('The C/TPA account needs a primary email. Use Edit C/TPA first.');
-
-     btn.disabled=true;btn.textContent='Creating Order…';
-
-     const replacement=await DOTApi.call('replace_ctpa_subscription',{
-       ctpa_id:requestedCtpa,
-       plan_id:planId,
-       billing_frequency:frequency,
-       notes
-     });
-     const newSubscription=replacement?.subscription;
-     if(!newSubscription?.id)throw new Error('The new subscription could not be created.');
-
-     const subOrder=await DOTApi.invoke(DOT_PORTAL_CONFIG.orderingFunction,{
-       action:'create_ctpa_subscription_order',
-       ctpa_id:requestedCtpa,
-       organization_id:existingOrg.id||undefined,
-       subscription_id:newSubscription.id,
-       plan_id:planId,
-       order_type:orderType,
-       payment_mode:mode,
-       payment_reference:paymentRef,
-       internal_notes:notes,
-       billing_frequency:frequency,
-       email,first_name:first,last_name:last,
-       phone:existingCtpa.support_phone||existingOrg.phone||''
-     });
-
-     await DOTApi.call('set_portal_access',{
-       organization_id:existingOrg.id,
-       portal_code:'ctpa_dot',
-       enabled:true,
-       tenant_id:existingCtpa.tenant_id
-     });
-
-     if($('#sendInviteAfter').checked){
-       await DOTApi.invoke(DOT_PORTAL_CONFIG.inviteFunction,{
-         organization_id:existingOrg.id,email,first_name:first,last_name:last,
-         role:'account_admin',account_type:'dot_ctpa',is_primary:true
-       });
-     }
-
-     const orderNumber=subOrder?.order?.order_number||subOrder?.order?.id||'Created';
-     const planName=planRadio?.dataset.name||'Selected plan';
-     $('#ctpaCreateResult').innerHTML=`<div class="dot-banner"><div><strong>Order ${esc(orderNumber)} created</strong><span>${esc(planName)} is active under NEW subscription ${esc(newSubscription.id)}. No trial subscription was created.</span></div><div class="dot-inline-actions"><a class="dot-btn primary" href="dot-recent-orders.html">View Recent Orders</a><a class="dot-btn" href="dot-orders.html">Create Another Order</a><a class="dot-btn" href="dot-ctpa-detail.html?id=${encodeURIComponent(requestedCtpa)}">View C/TPA</a></div></div>`;
-     btn.textContent='Order Created';
-   }catch(e){
-     btn.disabled=false;
-     btn.textContent='Create C/TPA Subscription Order';
-     message(e.message,'error');
-   }
- };
-}
-
-async function loadRecentOrders(){
- renderBase({
-   title:'Recent C/TPA Orders',
-   copy:'Subscription order history from the DOT management control plane. New orders are created on the separate Create Order page.',
-   actions:'<a class="dot-btn primary" href="dot-orders.html">Create Order</a><a class="dot-btn" href="dot-ctpas.html">C/TPA Accounts</a><a class="dot-btn" href="dot-invoices.html">Billing & Invoices</a>'
- });
- const history=await DOTApi.call('orders').catch(()=>({orders:[]}));
- const orders=get(history,'orders','service_orders').filter(x=>{
-   const purpose=String(x.metadata?.purpose||'').toLowerCase();
-   const type=String(x.metadata?.order_type||'').toLowerCase();
-   return purpose==='ctpa_subscription'||type.includes('subscription')||String(x.metadata?.business||'').toLowerCase()==='dot';
- });
- const rows=orders.map(x=>[
-   esc(x.order_number||x.id||'—'),
-   esc(x.company_name||x.customer_name||x.customer_email||x.metadata?.ctpa_name||'—'),
-   esc(x.metadata?.purpose==='ctpa_subscription'?'C/TPA Subscription':x.metadata?.order_type||'C/TPA Subscription'),
-   money(x.total??x.amount??0),
-   badge(x.payment_status||x.status),
-   fmtDate(x.created_at)
- ]);
- $('#dotPageBody').innerHTML=`
-  ${metrics([['Recent Orders',String(rows.length),'C/TPA subscription orders'],['Paid',String(orders.filter(x=>String(x.payment_status||x.status).toLowerCase()==='paid').length),'Completed payment'],['Open',String(orders.filter(x=>['pending','unpaid','processing'].includes(String(x.payment_status||x.status).toLowerCase())).length),'Pending activity'],['Page','Order History','Read-only history']])}
-  <div class="dot-card"><div class="dot-card-head"><div><h2>Recent Orders</h2><p>This page is order history only. Use Create Order to start a new C/TPA subscription order.</p></div><a class="dot-btn primary" href="dot-orders.html">Create Order</a></div>${table(['Order','Customer','Type','Total','Payment / Status','Created'],rows)}</div>`;
+ const loaded=await Promise.all(requests),opts=loaded[0],catalog=loaded[1],history=loaded[2],existing=loaded[3]||null;
+ const existingCtpa=existing?.customer||null,existingOrg=existing?.organization||existingCtpa?.organizations||{},existingSubs=existing?.subscriptions||[],existingSub=existingSubs.find(x=>['active','trial','past_due','suspended'].includes(String(x.status||'').toLowerCase()))||existingSubs[0]||null,primary=(existing?.memberships||[]).find(x=>x.is_primary)||(existing?.memberships||[])[0]||null,profile=primary?.profiles||{};
+ if(requestedCtpa&&!existingCtpa)throw new Error('The selected C/TPA account was not found.');
+ const plans=(opts.dot?.plans||[]).filter(x=>String(x.code||'').startsWith('dot_ctpa_')&&!x.billing_model?.test_only).sort((a,b)=>Number(a.billing_model?.amount||a.monthly_price||0)-Number(b.billing_model?.amount||b.monthly_price||0));
+ const services=catalog.dot?.service_catalog||[],addons=catalog.dot?.addons||[];
+ const planCards=plans.map((p,i)=>`<label class="dot-order-choice"><input type="radio" name="ctpaPlan" value="${esc(p.id)}" ${(existingSub?.plan_id===p.id||(!existingSub&&i===0))?'checked':''}><span><strong>${esc(p.name)}</strong><b>${money(p.billing_model?.amount??p.monthly_price??0)}/${esc(p.billing_model?.frequency||'month')}</b><small>${esc(p.description||p.code)}</small></span></label>`).join('');
+ const serviceCards=[...services.map(x=>({...x,_kind:'dot_service'})),...addons.map(x=>({...x,_kind:'dot_addon'}))].map(x=>`<label class="dot-order-choice compact"><input type="checkbox" class="ctpaOrderItem" data-kind="${esc(x._kind)}" value="${esc(x.id)}"><span><strong>${esc(x.name)}</strong><b>${x.base_amount!=null?money(x.base_amount):x.one_time_price!=null?money(x.one_time_price):x.monthly_price!=null?money(x.monthly_price):'Priced by catalog'}</b><small>${esc(x.description||x.category||'')}</small></span></label>`).join('');
+ const hrows=get(history,'orders','service_orders').slice(0,25).map(x=>[esc(x.order_number||x.id||'—'),esc(x.company_name||x.customer_name||x.customer_email||'—'),esc(x.metadata?.purpose==='ctpa_subscription'?'C/TPA Subscription':x.metadata?.business||x.service_name||'DOT'),money(x.total??x.amount??0),badge(x.payment_status||x.status),fmtDate(x.created_at)]);
+ const v=(x)=>esc(x||'');
+ $('#dotPageBody').innerHTML=`${requestedCtpa?`<div class="dot-banner"><div><strong>Existing C/TPA account</strong><span>You are creating a new order/subscription action for ${esc(existingOrg.legal_name||existingOrg.dba_name||requestedCtpa)}. This will not create another C/TPA record.</span></div><a class="dot-btn" href="dot-ctpa-detail.html?id=${encodeURIComponent(requestedCtpa)}">Back to Account</a></div>`:''}
+ <div class="dot-grid"><article class="dot-card" style="grid-column:span 8"><div class="dot-card-head"><div><h2>1. C/TPA Company & Primary Portal User</h2><p>${requestedCtpa?'Confirm the account and primary contact for this order.':'This creates the authoritative C/TPA account and primary administrator identity.'}</p></div></div><div class="dot-card-body"><div class="dot-field-grid"><div class="dot-field"><label>Legal Name</label><input id="newLegal" required value="${v(existingOrg.legal_name)}"></div><div class="dot-field"><label>DBA / Display Name</label><input id="newDba" value="${v(existingOrg.dba_name||existingOrg.display_name)}"></div><div class="dot-field"><label>Primary First Name</label><input id="newFirst" required value="${v(profile.first_name)}"></div><div class="dot-field"><label>Primary Last Name</label><input id="newLast" required value="${v(profile.last_name)}"></div><div class="dot-field"><label>Primary Email</label><input id="newEmail" type="email" required value="${v(profile.email||existingOrg.primary_email||existingCtpa?.support_email)}"></div><div class="dot-field"><label>Phone</label><input id="newPhone" value="${v(existingCtpa?.support_phone||existingOrg.phone||profile.phone)}"></div><div class="dot-field"><label>Website</label><input id="newWebsite" value="${v(existingOrg.website)}"></div><div class="dot-field"><label>EIN</label><input id="newEin" value="${v(existingOrg.ein)}"></div><div class="dot-field"><label>Address</label><input id="newAddress" value="${v(existingOrg.address_line1)}"></div><div class="dot-field"><label>City</label><input id="newCity" value="${v(existingOrg.city)}"></div><div class="dot-field"><label>State</label><input id="newState" maxlength="2" value="${v(existingOrg.state_region)}"></div><div class="dot-field"><label>ZIP</label><input id="newZip" value="${v(existingOrg.postal_code)}"></div></div></div></article><article class="dot-card" style="grid-column:span 4"><div class="dot-card-head"><div><h2>Portal Provisioning</h2><p>C/TPA DOT access behavior.</p></div></div><div class="dot-card-body"><div class="dot-kpi-list"><div class="dot-kpi-row"><span>Portal</span><strong>ctpa-dot.screenings4u.com</strong></div><div class="dot-kpi-row"><span>Account Type</span><strong>DOT C/TPA</strong></div><div class="dot-kpi-row"><span>Primary Role</span><strong>Account Administrator</strong></div>${requestedCtpa?`<div class="dot-kpi-row"><span>Current Subscription</span><strong>${esc(existingSub?.status||'None')}</strong></div>`:''}</div><label class="dot-check" style="margin-top:15px"><input id="sendInviteAfter" type="checkbox" checked> Send branded portal invitation when access is active</label><label class="dot-check" style="margin-top:12px"><input id="unlimitedAccess" type="checkbox"> Grant unlimited access — no renewal reminders or subscription expiration lockout</label></div></article></div>
+ <div class="dot-card" style="margin-top:15px"><div class="dot-card-head"><div><h2>2. Subscription Plan</h2><p>All active DOT C/TPA subscription plans from Supabase.</p></div></div><div class="dot-card-body"><div class="dot-order-grid">${planCards||'<div class="dot-empty">No C/TPA plans are active.</div>'}</div></div></div>
+ <div class="dot-card" style="margin-top:15px"><div class="dot-card-head"><div><h2>3. Services & Add-ons</h2><p>Optional DOT services and account features. Selected items create a real administrative service order.</p></div></div><div class="dot-card-body"><div class="dot-order-grid">${serviceCards||'<div class="dot-empty">No optional DOT services are available.</div>'}</div></div></div>
+ <div class="dot-card" style="margin-top:15px"><div class="dot-card-head"><div><h2>4. Payment & Activation</h2><p>Choose how this account is being activated or billed.</p></div></div><div class="dot-card-body"><div class="dot-field-grid"><div class="dot-field"><label>Activation Method</label><select id="activationMode"><option value="manual_paid">Paid / manual payment — activate now</option><option value="complimentary">Complimentary / admin override — activate now</option><option value="stripe_checkout">Send Stripe subscription checkout — activate after payment</option></select></div><div class="dot-field"><label>Billing Frequency</label><select id="billingFrequency"><option value="monthly">Monthly</option></select><small class="dot-help">Current C/TPA Stripe prices are configured as monthly subscriptions.</small></div><div class="dot-field"><label>Manual Payment Reference</label><input id="paymentRef" placeholder="Check, ACH, invoice, comp, etc."></div><div class="dot-field"><label>Internal Notes</label><input id="orderNotes" placeholder="Optional management note"></div></div><div class="dot-help" id="activationHelp">Manual payment creates an active subscription order, grants portal access, and can send the branded password setup email immediately.</div><div class="dot-actions" style="margin-top:18px"><button class="dot-btn primary" id="createCtpaAccount">${requestedCtpa?'Create Order / Update Subscription':'Create C/TPA Account'}</button></div></div></div>
+ <div id="ctpaCreateResult"></div>
+ <div class="dot-card" style="margin-top:15px"><div class="dot-card-head"><div><h2>Recent DOT Orders</h2><p>Administrative C/TPA and DOT order history created through the management control plane.</p></div></div>${table(['Order','Customer','Business','Total','Payment','Created'],hrows)}</div>`;
+ $('#activationMode').addEventListener('change',()=>{$('#activationHelp').textContent=$('#activationMode').value==='stripe_checkout'?'The account/subscription order is created first, portal access is held, a branded Stripe checkout email is sent, and access activates automatically after successful payment.':'The subscription is activated immediately, the subscription order is recorded, and the C/TPA can receive its branded portal invitation now.'});
+ $('#createCtpaAccount').onclick=async()=>{const btn=$('#createCtpaAccount');try{
+   const legal=$('#newLegal').value.trim(),email=$('#newEmail').value.trim().toLowerCase(),first=$('#newFirst').value.trim(),last=$('#newLast').value.trim(),planId=document.querySelector('input[name="ctpaPlan"]:checked')?.value,mode=$('#activationMode').value;if(!legal||!email||!first||!last||!planId)throw new Error('Legal name, primary contact name, email, and subscription plan are required.');
+   btn.disabled=true;btn.textContent=requestedCtpa?'Creating Order…':'Creating C/TPA…';const items=[...document.querySelectorAll('.ctpaOrderItem:checked')].map(x=>({kind:x.dataset.kind,id:x.value,quantity:1}));
+   let prov=null,ctpaId=requestedCtpa,organizationId=existingOrg.id||'',subscription=null;
+   if(requestedCtpa){await DOTApi.call('save_ctpa_profile',{ctpa:{id:requestedCtpa,legal_name:legal,display_name:$('#newDba').value.trim(),support_email:email,support_phone:$('#newPhone').value.trim(),status:existingCtpa.status||'active'}});const sr=await DOTApi.call('set_ctpa_subscription',{ctpa_id:requestedCtpa,plan_id:planId,status:mode==='stripe_checkout'?'trial':'active',billing_frequency:'monthly',notes:$('#orderNotes').value.trim()});subscription=sr.subscription;}
+   else{prov=await DOTApi.invoke(DOT_PORTAL_CONFIG.provisioningFunction,{action:'create_account',business:'dot',account_type:'ctpa',profile:{legal_name:legal,dba_name:$('#newDba').value.trim(),email,phone:$('#newPhone').value.trim(),website:$('#newWebsite').value.trim(),ein:$('#newEin').value.trim(),address_line1:$('#newAddress').value.trim(),city:$('#newCity').value.trim(),state:$('#newState').value.trim().toUpperCase(),postal_code:$('#newZip').value.trim(),country:'US'},primary_user:{first_name:first,last_name:last,email,phone:$('#newPhone').value.trim(),role_code:'account_admin'},plan_id:planId,subscription_status:mode==='stripe_checkout'?'trial':'active',billing_frequency:'monthly',portal_access:true,send_invite:false,service_ids:items.map(x=>x.id),subscription_notes:$('#orderNotes').value.trim()});ctpaId=prov.source_id;organizationId=prov.organization_id;subscription={id:prov.subscription_id};}
+   if(!organizationId&&requestedCtpa)organizationId=existingOrg.id;
+   if($('#unlimitedAccess').checked)await DOTApi.call('set_ctpa_unlimited_access',{ctpa_id:ctpaId,enabled:true,reason:'Granted during C/TPA account/order creation'});
+   const subOrder=await DOTApi.invoke(DOT_PORTAL_CONFIG.orderingFunction,{action:'create_ctpa_subscription_order',subscription_id:subscription.id,plan_id:planId,payment_mode:mode,payment_reference:$('#paymentRef').value.trim(),internal_notes:$('#orderNotes').value.trim(),email,first_name:first,last_name:last,phone:$('#newPhone').value.trim()});
+   let checkout=null,invite=null,serviceOrder=null;
+   if(mode==='stripe_checkout'){await DOTApi.call('set_portal_access',{organization_id:organizationId,portal_code:'ctpa_dot',enabled:false,tenant_id:existingCtpa?.tenant_id});checkout=await DOTApi.invoke(DOT_PORTAL_CONFIG.orderingFunction,{action:'subscription_checkout',business:'dot',subscription_id:subscription.id,plan_id:planId,email,order_id:subOrder.order.id,send_email:true});}
+   else{await DOTApi.call('set_portal_access',{organization_id:organizationId,portal_code:'ctpa_dot',enabled:true,tenant_id:existingCtpa?.tenant_id});if($('#sendInviteAfter').checked)invite=await DOTApi.invoke(DOT_PORTAL_CONFIG.inviteFunction,{organization_id:organizationId,email,first_name:first,last_name:last,role:'account_admin',account_type:'dot_ctpa',is_primary:true});}
+   if(items.length){serviceOrder=await DOTApi.invoke(DOT_PORTAL_CONFIG.orderingFunction,{action:'create_bundle',organization_id:organizationId,customer:{email,first_name:first,last_name:last,phone:$('#newPhone').value.trim(),address_line1:$('#newAddress').value.trim(),city:$('#newCity').value.trim(),state:$('#newState').value.trim().toUpperCase(),postal_code:$('#newZip').value.trim(),country:'US'},orders:[{business:'dot',items,payment_mode:mode==='stripe_checkout'?'invoice':'paid',payment_provider:mode==='stripe_checkout'?null:'manual',payment_reference:$('#paymentRef').value.trim(),payment_override_reason:mode==='complimentary'?'Administrative complimentary activation':'Management manual payment',create_invoice:mode==='stripe_checkout',internal_notes:$('#orderNotes').value.trim()}]});}
+   const receiptText=mode==='stripe_checkout'?'Subscription checkout was created and portal access is held until Stripe confirms payment.':(subOrder?.receipt?.sent===true?'Subscription order is recorded, portal access is active, and the branded receipt email was sent.':'Subscription order is recorded and portal access is active. The receipt email was not confirmed; you can resend it from the C/TPA account page.');
+   $('#ctpaCreateResult').innerHTML=`<div class="dot-banner"><div><strong>${requestedCtpa?'C/TPA order created':'C/TPA account created'}</strong><span>${receiptText}</span></div><div class="dot-inline-actions"><a class="dot-btn primary" href="dot-ctpa-detail.html?id=${encodeURIComponent(ctpaId)}">Manage C/TPA</a>${checkout?.checkout_url?`<a class="dot-btn" href="${esc(checkout.checkout_url)}" target="_blank" rel="noopener">Open Checkout</a>`:''}</div></div>`;
+   btn.textContent='Created';setTimeout(()=>{btn.disabled=false;btn.textContent=requestedCtpa?'Create Order / Update Subscription':'Create C/TPA Account'},800)
+  }catch(e){btn.disabled=false;btn.textContent=requestedCtpa?'Create Order / Update Subscription':'Create C/TPA Account';message(e.message,'error')}};
 }
 async function loadDashboard(){
  renderBase({title:'DOT Management Dashboard',copy:'Executive overview of dot.screenings4u.com, all 35 DOT portals, customers, testing, compliance, billing, support, and distribution activity.',actions:'<a class="dot-btn primary" href="dot-portal-control.html">Portal Control</a><a class="dot-btn" href="dot-website.html">DOT Website</a><a class="dot-btn" href="dot-distribution.html">Distribution</a>'});
@@ -410,7 +230,7 @@ async function loadAgencies(){renderBase({title:'DOT Agency Management',copy:'Ce
 async function loadUsers(){renderBase({title:'DOT Users & Portal Access',copy:'Manage staff access to the DOT management portal and customer-facing DOT portal access relationships.',actions:'<a class="dot-btn primary" href="dot-user-detail.html?mode=invite">Invite DOT User</a>'});let d={};try{d=await window.DOTApi.call('portal_access')}catch(e){showError(e);return}const members=get(d,'memberships','users').map((x,i)=>[esc(x.email||x.user_email||x.user_id||'—'),esc(x.role_code||x.role||'—'),esc(x.organization_name||x.organization_id||'—'),badge(x.status||'active'),`<a class="dot-btn small" href="dot-user-detail.html?row=${i}">Manage</a>`]);$('#dotPageBody').innerHTML=table(['User','Role','Account','Status','Manage'],members)}
 async function loadIntegrations(){renderBase({title:'DOT Integrations',copy:'DOT-only external systems and data connections, isolated from the enterprise application.',actions:''});let d={};try{d=await window.DOTApi.call('integrations')}catch(e){d={integrations:[]};$('#dotPageStatus').innerHTML=`<div class="dot-banner warning"><div><strong>Integration inventory is not available yet.</strong><span>${esc(e.message)}</span></div></div>`}const rows=get(d,'integrations').map(x=>[name(x),esc(x.provider||x.integration_type||'—'),badge(x.status),fmtDate(x.updated_at)]);$('#dotPageBody').innerHTML=table(['Integration','Provider','Status','Updated'],rows)}
 async function loadSettings(){renderBase({title:'DOT Portal Settings',copy:'Configuration for the standalone DOT management portal only.',actions:'<a class="dot-btn primary" href="dot-settings-general.html">Manage Settings</a>'});$('#dotPageBody').innerHTML=`<div class="dot-card"><div class="dot-card-head"><div><h2>Portal Identity</h2><p>These settings belong to the dedicated DOT control plane.</p></div></div><div class="dot-card-body"><div class="dot-field-grid"><div class="dot-field"><label>Management Host</label><input value="dot-portal.screenings4u.com" readonly></div><div class="dot-field"><label>Managed Website</label><input value="https://dot.screenings4u.com" readonly></div><div class="dot-field"><label>Portal Name</label><input id="portalName" value="screenings4u DOT Management Portal"></div><div class="dot-field"><label>Backend Adapter</label><input value="DOT-only Supabase Edge Function" readonly></div></div><div class="dot-help">No Enterprise navigation, CSS, or JavaScript files are loaded by this portal.</div></div></div>`}
-async function load(){if(page==='dot-ctpas.html')return loadCtpas();if(page==='dot-orders.html')return loadOrders();if(page==='dot-recent-orders.html')return loadRecentOrders();if(listPages[page])return loadList(listPages[page]);if(page==='dot-dashboard.html')return loadDashboard();if(page==='dot-website.html')return loadWebsite();if(page==='dot-portal-control.html')return loadPortalControl();if(page==='dot-agencies.html')return loadAgencies();if(page==='dot-users-access.html')return loadUsers();if(page==='dot-integrations.html')return loadIntegrations();if(page==='dot-settings.html')return loadSettings();renderBase({title:'DOT Management',copy:'Standalone DOT management workspace.'});$('#dotPageBody').innerHTML='<div class="dot-card"><div class="dot-empty">This DOT module is ready for its dedicated controller.</div></div>'}
+async function load(){if(page==='dot-ctpas.html')return loadCtpas();if(page==='dot-orders.html')return loadOrders();if(listPages[page])return loadList(listPages[page]);if(page==='dot-dashboard.html')return loadDashboard();if(page==='dot-website.html')return loadWebsite();if(page==='dot-portal-control.html')return loadPortalControl();if(page==='dot-agencies.html')return loadAgencies();if(page==='dot-users-access.html')return loadUsers();if(page==='dot-integrations.html')return loadIntegrations();if(page==='dot-settings.html')return loadSettings();renderBase({title:'DOT Management',copy:'Standalone DOT management workspace.'});$('#dotPageBody').innerHTML='<div class="dot-card"><div class="dot-empty">This DOT module is ready for its dedicated controller.</div></div>'}
 async function start(){const state=await window.DOTAuth.requireAuth();if(!state)return;window.DOTShell.render(state);await load()}
 window.addEventListener('DOMContentLoaded',()=>start().catch(showError),{once:true});
 })();
