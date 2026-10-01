@@ -134,7 +134,7 @@ async function loadOrders(){
  redraw();
 }
 async function loadDashboard(){
- renderBase({title:'DOT Management Dashboard',copy:'One organized view of DOT customers, portal operations, testing, compliance, support, billing, and publishing.',actions:'<a class="dot-btn primary" href="dot-portal-control.html">Portal Control</a><a class="dot-btn" href="dot-website.html">DOT Website</a><a class="dot-btn" href="dot-distribution.html">Distribution</a>'});
+ renderBase({title:'DOT Management Dashboard',copy:'Executive overview of dot.screenings4u.com, all 35 DOT portals, customers, testing, compliance, billing, support, and distribution activity.',actions:'<a class="dot-btn primary" href="dot-portal-control.html">Portal Control</a><a class="dot-btn" href="dot-website.html">DOT Website</a><a class="dot-btn" href="dot-distribution.html">Distribution</a>'});
  const settled=await Promise.allSettled([
    window.DOTApi.call('overview'),
    window.DOTApi.registry('inventory'),
@@ -152,132 +152,119 @@ async function loadDashboard(){
  const openTests=orders.filter(x=>!['completed','complete','cancelled','canceled'].includes(String(x.status||'').toLowerCase())).length;
  const activeSubs=subscriptions.filter(x=>['active','trialing'].includes(String(x.status||'').toLowerCase())).length;
  const outstandingInvoices=invoices.filter(x=>!['paid','void','cancelled','canceled'].includes(String(x.status||'').toLowerCase())).length;
+ const ctpaPortal=portals.find(x=>x.portal_code==='ctpa_dot')||{};
  const websiteTarget=targets.find(x=>x.target_key==='website:dot.screenings4u.com')||{};
+ const ctpaTarget=targets.find(x=>x.target_key==='portal:ctpa_dot')||{};
+ const wiredPortals=portals.filter(x=>x.managed===true).length;
+ const agencyPortals=portals.filter(x=>x.portal_kind==='agency').length;
  const activePortals=portals.filter(x=>String(x.status||'active').toLowerCase()==='active').length;
  const portalKinds=[...new Set(portals.map(x=>x.portal_kind).filter(Boolean))].length;
  const connectionOk=failures.length===0;
- $('#dotPageStatus').innerHTML=connectionOk?'':`<div class="dot-banner warning"><div><strong>Some dashboard data could not be loaded.</strong><span>${failures.length} data source${failures.length===1?'':'s'} did not answer. The available sections are still shown below.</span></div><span class="dot-status-pill warn">Partial</span></div>`;
-
- const overviewMetrics=[
-   ['DOT Portals',portals.length,'Registered customer-facing portals'],
-   ['C/TPAs',ctpas.length,'Managed C/TPA accounts'],
-   ['Employers',employers.length,'DOT employer accounts'],
-   ['DOT Workers',drivers.length,'Covered people / drivers']
+ $('#dotPageStatus').innerHTML=`<div class="dot-banner ${connectionOk?'':'warning'}"><div><strong>${connectionOk?'DOT management overview is live':'DOT management overview loaded with partial data'}</strong><span>${connectionOk?'Portal registry, website registry, operations, billing, support, and distribution are connected.':`${failures.length} dashboard data source${failures.length===1?'':'s'} did not answer. Available sections are still shown.`}</span></div><span class="dot-status-pill ${connectionOk?'ok':'warn'}">${connectionOk?'Live':'Partial'}</span></div>`;
+ const topMetrics=[
+  ['DOT Portals',String(portals.length),'Registered customer-facing portals'],
+  ['Portal Pages',String(portalPages.length),'Managed portal pages'],
+  ['Website Pages',String(websitePages.length),'dot.screenings4u.com'],
+  ['C/TPAs',String(ctpas.length),'Managed C/TPA accounts'],
+  ['Employers',String(employers.length),'DOT employer accounts'],
+  ['DOT Workers',String(drivers.length),'Covered people / drivers'],
+  ['Open Compliance',String(openCompliance),'Cases needing attention'],
+  ['Open Support',String(openSupport),'Unresolved support tickets']
  ];
  const operations=[
-   ['C/TPAs',ctpas.length,'dot-ctpas.html','Accounts, subscriptions, staff, customers, branding, billing, and support.'],
-   ['Employers',employers.length,'dot-employers.html','Direct and C/TPA-sponsored DOT employers.'],
-   ['Owner-Operators',owners.length,'dot-owner-operators.html','Owner-operator accounts and consortium relationships.'],
-   ['Drivers / People',drivers.length,'dot-drivers.html','Safety-sensitive workforce records.'],
-   ['Programs',programs.length,'dot-programs.html','DOT programs and employer configuration.'],
-   ['Pools',pools.length,'dot-pools.html','Consortiums, random pools, and membership.'],
-   ['Testing',openTests,'dot-testing-orders.html','Open testing orders needing completion.'],
-   ['Results',results.length,'dot-results.html','DOT testing result records.']
+  ['C/TPAs',ctpas.length,'dot-ctpas.html','Accounts, subscriptions, features, staff, customers, branding, billing, and support.'],
+  ['Employers',employers.length,'dot-employers.html','Direct and C/TPA-sponsored DOT employers.'],
+  ['Owner-Operators',owners.length,'dot-owner-operators.html','Owner-operator accounts and consortium relationships.'],
+  ['Drivers / People',drivers.length,'dot-drivers.html','Safety-sensitive workforce records.'],
+  ['Programs',programs.length,'dot-programs.html','DOT programs and employer program configuration.'],
+  ['Pools',pools.length,'dot-pools.html','Consortiums, random pools, and membership.'],
+  ['Open Testing',openTests,'dot-testing-orders.html','Testing orders not yet complete.'],
+  ['Results',results.length,'dot-results.html','DOT testing result records.'],
+  ['Compliance',openCompliance,'dot-compliance.html','Open compliance and corrective-action cases.'],
+  ['Support',openSupport,'dot-support.html','Open customer and C/TPA support activity.'],
+  ['Billing',outstandingInvoices,'dot-invoices.html',`${activeSubs} active subscriptions · ${outstandingInvoices} open invoices.`],
+  ['Audit',get(overview,'audit_events','audit').length,'dot-audit.html','Management and operational audit history.']
  ];
- const portalStatusRows=portals.slice().sort((a,b)=>String(a.label||'').localeCompare(String(b.label||''))).slice(0,6).map(x=>[
+ const portalStatusRows=portals.slice().sort((a,b)=>String(a.label||'').localeCompare(String(b.label||''))).slice(0,8).map(x=>[
    `<strong>${esc(x.label)}</strong><small>${esc(x.portal_code)}</small>`,
    esc(x.portal_kind||'portal'),
    esc(String(x.page_count??portalPages.filter(p=>p.portal_id===x.id).length)),
    badge(x.status||'active'),
    `<a class="dot-btn small" href="dot-portal-detail.html?portal=${encodeURIComponent(x.portal_code)}">Manage</a>`
  ]);
- const recentRows=distEvents.slice(0,6).map(x=>[
+ const recentRows=distEvents.slice(0,8).map(x=>[
    esc(x.action||'—'),
    esc(targets.find(t=>t.id===x.target_id)?.label||x.target_id||'—'),
    esc(String(x.revision??'—')),
    fmtDate(x.created_at)
  ]);
-
- $('#dotPageBody').innerHTML=`
-   <section class="dot-dashboard-section">
-     <div class="dot-dashboard-section-head"><div><span>Account Network</span><h2>DOT Operations at a Glance</h2><p>Core customer and workforce counts across the DOT platform.</p></div><span class="dot-status-pill ${connectionOk?'ok':'warn'}">${connectionOk?'Live Data':'Partial Data'}</span></div>
-     ${metrics(overviewMetrics)}
-   </section>
-
-   <section class="dot-dashboard-section">
-     <div class="dot-dashboard-section-head"><div><span>Platform & Publishing</span><h2>Website and Portal Network</h2><p>Manage the public DOT website and all customer-facing DOT portals.</p></div></div>
-     <div class="dot-grid dot-dashboard-grid dot-dashboard-platform-grid">
-       <article class="dot-card half dot-property-card">
-         <div class="dot-card-head"><div><h2>Main DOT Website</h2><p>Public website management for dot.screenings4u.com.</p></div>${badge(websiteTarget.enabled===false?'disabled':'active')}</div>
-         <div class="dot-card-body">
-           <div class="dot-property-domain">dot.screenings4u.com</div>
-           <div class="dot-property-stats"><div><strong>${websitePages.length}</strong><span>website pages</span></div><div><strong>${websiteTarget.published_revision??0}</strong><span>published revision</span></div></div>
-           <div class="dot-inline-actions"><a class="dot-btn primary" href="dot-website.html">Manage Website</a><a class="dot-btn" href="dot-distribution.html?target=website%3Adot.screenings4u.com">Distribution</a><a class="dot-btn" href="https://dot.screenings4u.com" target="_blank" rel="noopener">Open Live</a></div>
-         </div>
-       </article>
-       <article class="dot-card half dot-property-card">
-         <div class="dot-card-head"><div><h2>DOT Portal Network</h2><p>Central management for every DOT customer portal.</p></div>${badge(activePortals===portals.length?'active':'attention')}</div>
-         <div class="dot-card-body">
-           <div class="dot-property-domain">${portals.length} registered portals</div>
-           <div class="dot-property-stats"><div><strong>${activePortals}</strong><span>active portals</span></div><div><strong>${portalPages.length}</strong><span>portal pages</span></div><div><strong>${portalKinds}</strong><span>portal types</span></div></div>
-           <div class="dot-inline-actions"><a class="dot-btn primary" href="dot-portal-control.html">Portal Control</a><a class="dot-btn" href="dot-distribution.html">Distribution</a><a class="dot-btn" href="dot-users-access.html">Access</a></div>
-         </div>
-       </article>
+ $('#dotPageBody').innerHTML=metrics(topMetrics)+`
+ <div class="dot-grid dot-dashboard-grid">
+   <article class="dot-card half dot-property-card">
+     <div class="dot-card-head"><div><h2>Main DOT Website</h2><p>Public website management for dot.screenings4u.com.</p></div>${badge(websiteTarget.enabled===false?'disabled':'active')}</div>
+     <div class="dot-card-body">
+       <div class="dot-property-domain">dot.screenings4u.com</div>
+       <div class="dot-property-stats"><div><strong>${websitePages.length}</strong><span>registered pages</span></div><div><strong>${websiteTarget.published_revision??0}</strong><span>published revision</span></div></div>
+       <div class="dot-inline-actions"><a class="dot-btn primary" href="dot-website.html">Manage Website</a><a class="dot-btn" href="dot-distribution.html?target=website%3Adot.screenings4u.com">Distribution</a><a class="dot-btn" href="https://dot.screenings4u.com" target="_blank" rel="noopener">Open Live</a></div>
      </div>
-   </section>
-
-   <section class="dot-dashboard-section">
-     <div class="dot-dashboard-section-head"><div><span>Priority Review</span><h2>Needs Attention</h2><p>Items that currently need management follow-up.</p></div></div>
-     <div class="dot-dashboard-attention-row">
-       <a href="dot-support.html"><span>Open Support</span><strong>${openSupport}</strong><small>Customer tickets</small></a>
-       <a href="dot-compliance.html"><span>Open Compliance</span><strong>${openCompliance}</strong><small>Cases needing review</small></a>
-       <a href="dot-testing-orders.html"><span>Open Testing</span><strong>${openTests}</strong><small>Incomplete orders</small></a>
-       <a href="dot-invoices.html"><span>Open Invoices</span><strong>${outstandingInvoices}</strong><small>${activeSubs} active subscriptions</small></a>
+   </article>
+   <article class="dot-card half dot-property-card">
+     <div class="dot-card-head"><div><h2>DOT Portal Network</h2><p>Central management for every DOT customer-facing portal.</p></div>${badge(activePortals===portals.length?'active':'attention')}</div>
+     <div class="dot-card-body">
+       <div class="dot-property-domain">${portals.length} registered portals</div>
+       <div class="dot-property-stats"><div><strong>${activePortals}</strong><span>active portals</span></div><div><strong>${portalPages.length}</strong><span>registered pages</span></div><div><strong>${portalKinds}</strong><span>portal types</span></div></div>
+       <div class="dot-inline-actions"><a class="dot-btn primary" href="dot-portal-control.html">Portal Control</a><a class="dot-btn" href="dot-distribution.html">Distribution</a><a class="dot-btn" href="dot-users-access.html">Access</a></div>
      </div>
-   </section>
-
-   <section class="dot-dashboard-section">
-     <div class="dot-dashboard-section-head"><div><span>Customer Operations</span><h2>Operational Workspaces</h2><p>Open the main areas used to manage DOT customers and testing operations.</p></div></div>
-     <div class="dot-card"><div class="dot-card-body"><div class="dot-dashboard-action-grid">${operations.map(([label,count,href,copy])=>`<a class="dot-dashboard-action" href="${href}"><span class="dot-dashboard-action-count">${esc(String(count))}</span><b>${esc(label)}</b><small>${esc(copy)}</small><span class="dot-dashboard-action-link">Open →</span></a>`).join('')}</div></div></div>
-   </section>
-
-   <section class="dot-dashboard-section">
-     <div class="dot-dashboard-section-head"><div><span>Monitoring</span><h2>Portal & Publishing Activity</h2><p>Quick access to portal status and recent distribution activity.</p></div></div>
-     <div class="dot-grid dot-dashboard-grid dot-dashboard-monitor-grid">
-       <article class="dot-card half">
-         <div class="dot-card-head"><div><h2>Portal Snapshot</h2><p>Recently managed DOT portals.</p></div><a class="dot-card-head-link" href="dot-portal-control.html">View all ${portals.length}</a></div>
-         <div class="dot-table-wrap"><table class="dot-table"><thead><tr><th>Portal</th><th>Type</th><th>Pages</th><th>Status</th><th></th></tr></thead><tbody>${portalStatusRows.length?portalStatusRows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="5"><div class="dot-empty">Portal registry has no records.</div></td></tr>'}</tbody></table></div>
-       </article>
-       <article class="dot-card half">
-         <div class="dot-card-head"><div><h2>Recent Distribution</h2><p>Latest website and portal publishing activity.</p></div><a class="dot-card-head-link" href="dot-distribution.html">Open distribution</a></div>
-         <div class="dot-table-wrap"><table class="dot-table"><thead><tr><th>Action</th><th>Target</th><th>Revision</th><th>Date</th></tr></thead><tbody>${recentRows.length?recentRows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="4"><div class="dot-empty">No distribution activity has been recorded yet.</div></td></tr>'}</tbody></table></div>
-       </article>
+   </article>
+   <article class="dot-card half dot-property-card dot-property-accent">
+     <div class="dot-card-head"><div><h2>C/TPA DOT — Phase 1</h2><p>First fully wired portal in the management control plane.</p></div>${badge(ctpaPortal.status||'active')}</div>
+     <div class="dot-card-body">
+       <div class="dot-property-domain">${esc(ctpaPortal.domain||'ctpa-dot.screenings4u.com')}</div>
+       <div class="dot-property-stats"><div><strong>${ctpaPortal.page_count??portalPages.filter(p=>p.portal_id===ctpaPortal.id).length}</strong><span>managed pages</span></div><div><strong>${ctpaTarget.published_revision??0}</strong><span>published revision</span></div><div><strong>${ctpas.length}</strong><span>C/TPA accounts</span></div></div>
+       <div class="dot-inline-actions"><a class="dot-btn primary" href="dot-portal-detail.html?portal=ctpa_dot">Manage Portal</a><a class="dot-btn" href="dot-ctpas.html">C/TPA Accounts</a><a class="dot-btn" href="https://ctpa-dot.screenings4u.com" target="_blank" rel="noopener">Open Live</a></div>
      </div>
-   </section>`;
+   </article>
+   <article class="dot-card half">
+     <div class="dot-card-head"><div><h2>Management Coverage</h2><p>Current inventory and Phase 1 control status.</p></div></div>
+     <div class="dot-card-body"><div class="dot-kpi-list">
+       <div class="dot-kpi-row"><span>Registered DOT portals</span><strong>${portals.length}</strong></div>
+       <div class="dot-kpi-row"><span>Managed registry entries</span><strong>${wiredPortals}</strong></div>
+       <div class="dot-kpi-row"><span>Agency portals</span><strong>${agencyPortals}</strong></div>
+       <div class="dot-kpi-row"><span>C/TPA DOT page controls</span><strong>${ctpaPortal.page_count??portalPages.filter(p=>p.portal_id===ctpaPortal.id).length}</strong></div>
+       <div class="dot-kpi-row"><span>DOT website page controls</span><strong>${websitePages.length}</strong></div>
+     </div></div>
+   </article>
+   <article class="dot-card">
+     <div class="dot-card-head"><div><h2>Operations Overview</h2><p>Jump directly into the operational areas managed by the DOT control plane.</p></div></div>
+     <div class="dot-card-body"><div class="dot-dashboard-action-grid">${operations.map(([label,count,href,copy])=>`<a class="dot-dashboard-action" href="${href}"><span class="dot-dashboard-action-count">${esc(String(count))}</span><b>${esc(label)}</b><small>${esc(copy)}</small><span class="dot-dashboard-action-link">Open →</span></a>`).join('')}</div></div>
+   </article>
+   <article class="dot-card half">
+     <div class="dot-card-head"><div><h2>Portal Snapshot</h2><p>Quick access to managed DOT portals.</p></div><a class="dot-card-head-link" href="dot-portal-control.html">View all ${portals.length}</a></div>
+     <div class="dot-table-wrap"><table class="dot-table"><thead><tr><th>Portal</th><th>Type</th><th>Pages</th><th>Status</th><th></th></tr></thead><tbody>${portalStatusRows.length?portalStatusRows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="5"><div class="dot-empty">Portal registry has no records.</div></td></tr>'}</tbody></table></div>
+   </article>
+   <article class="dot-card half">
+     <div class="dot-card-head"><div><h2>Current Attention</h2><p>Operational items that may need management review.</p></div></div>
+     <div class="dot-card-body"><div class="dot-attention-grid">
+       <a href="dot-support.html"><span>Open support</span><strong>${openSupport}</strong></a>
+       <a href="dot-compliance.html"><span>Open compliance</span><strong>${openCompliance}</strong></a>
+       <a href="dot-testing-orders.html"><span>Open testing</span><strong>${openTests}</strong></a>
+       <a href="dot-invoices.html"><span>Open invoices</span><strong>${outstandingInvoices}</strong></a>
+     </div></div>
+   </article>
+   <article class="dot-card">
+     <div class="dot-card-head"><div><h2>Recent Distribution Activity</h2><p>Latest website and portal configuration/distribution activity.</p></div><a class="dot-card-head-link" href="dot-distribution.html">Open distribution</a></div>
+     <div class="dot-table-wrap"><table class="dot-table"><thead><tr><th>Action</th><th>Target</th><th>Revision</th><th>Date</th></tr></thead><tbody>${recentRows.length?recentRows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="4"><div class="dot-empty">No distribution activity has been recorded yet.</div></td></tr>'}</tbody></table></div>
+   </article>
+ </div>`;
 }
 async function loadWebsite(){
- renderBase({title:'DOT Website Management',copy:'Manage the public DOT website registry, page visibility, SEO, and live distribution from one workspace.',actions:'<a class="dot-btn primary" href="dot-distribution.html?target=website%3Adot.screenings4u.com">Website Distribution</a><a class="dot-btn" href="https://dot.screenings4u.com" target="_blank" rel="noopener">Open Live Website</a>'});
- const settled=await Promise.allSettled([window.DOTApi.registry('inventory'),window.DOTApi.distribution('inventory')]);
- if(settled[0].status==='rejected')throw settled[0].reason;
- const d=settled[0].value||{},dist=settled[1].status==='fulfilled'?(settled[1].value||{}):{};
- const pages=d.website_pages||[],targets=dist.targets||[],events=dist.events||[],target=targets.find(x=>x.target_key==='website:dot.screenings4u.com')||null;
- const active=pages.filter(x=>x.status==='active').length,indexed=pages.filter(x=>x.seo_index!==false).length,visible=pages.filter(x=>x.nav_visible!==false).length,managed=pages.filter(x=>x.managed!==false).length;
- const typeCounts={};for(const x of pages){const k=x.page_type||'other';typeCounts[k]=(typeCounts[k]||0)+1}
- const recentEvents=events.filter(x=>!target||x.target_id===target.id).slice(0,5);
- const publishingHealthy=!!target&&target.enabled!==false;
- const statusBanner=!publishingHealthy?`<div class="dot-banner warning"><div><strong>Website distribution needs attention</strong><span>The public website target is not enabled or could not be loaded. Registry management is still available.</span></div></div>`:'';
- $('#dotPageBody').innerHTML=`${statusBanner}
- <section class="dot-website-section"><div class="dot-website-section-head"><div><span>Website Overview</span><h2>Public Website Registry</h2><p>Live page inventory for dot.screenings4u.com.</p></div></div>
- ${metrics([['Website Pages',String(pages.length),'Registered public pages'],['Active',String(active),'Pages available to visitors'],['SEO Indexed',String(indexed),'Search indexing enabled'],['Visible in Navigation',String(visible),'Shown in website navigation']])}</section>
- <section class="dot-website-section"><div class="dot-website-section-head"><div><span>Publishing</span><h2>Website Runtime & Distribution</h2><p>Registry health and the live distribution target used by the public website.</p></div></div>
- <div class="dot-grid dot-website-overview-grid">
-  <article class="dot-card" style="grid-column:span 7"><div class="dot-card-head"><div><h2>dot.screenings4u.com</h2><p>Public DOT marketing, pricing, checkout, and information website.</p></div>${publishingHealthy?badge('active'):badge('attention')}</div><div class="dot-card-body">
-   <div class="dot-website-runtime-grid"><div><span>Registry</span><strong>${pages.length} pages</strong><small>${managed} managed by DOT Management</small></div><div><span>Draft Revision</span><strong>${esc(String(target?.draft_revision??'—'))}</strong><small>Website-wide distribution draft</small></div><div><span>Published Revision</span><strong>${esc(String(target?.published_revision??'—'))}</strong><small>${target?.published_at?'Published '+fmtDate(target.published_at):'No website-wide publish yet'}</small></div></div>
-   <div class="dot-inline-actions"><a class="dot-btn primary" href="dot-distribution.html?target=website%3Adot.screenings4u.com">Manage Distribution</a><a class="dot-btn" href="https://dot.screenings4u.com" target="_blank" rel="noopener">Open Live Website</a></div>
-  </div></article>
-  <article class="dot-card" style="grid-column:span 5"><div class="dot-card-head"><div><h2>Page Types</h2><p>Registered pages grouped by purpose.</p></div></div><div class="dot-card-body"><div class="dot-website-type-grid">${Object.entries(typeCounts).sort((a,b)=>String(a[0]).localeCompare(String(b[0]))).map(([k,v])=>`<button type="button" class="dot-website-type-card" data-type-quick="${esc(k)}"><span>${esc(k.replaceAll('_',' '))}</span><strong>${esc(String(v))}</strong><small>Show ${esc(k.replaceAll('_',' '))} pages</small></button>`).join('')||'<div class="dot-empty compact">No registered page types.</div>'}</div></div></article>
- </div></section>
- <section class="dot-website-section"><div class="dot-website-section-head"><div><span>Page Management</span><h2>Website Pages</h2><p>Search the registry and open any page to manage its title, status, SEO, navigation, runtime controls, and live publishing.</p></div><div class="dot-website-head-actions"><span id="siteResultCount" class="dot-status-pill">${pages.length} pages</span></div></div>
- <article class="dot-card dot-website-pages-card"><div class="dot-card-body dot-website-filter-bar"><div class="dot-field dot-website-search"><label for="siteSearch">Search pages</label><input id="siteSearch" placeholder="Title, route, file, or page type"></div><div class="dot-field"><label for="siteTypeFilter">Page type</label><select id="siteTypeFilter"><option value="">All types</option>${[...new Set(pages.map(x=>x.page_type).filter(Boolean))].sort().map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></div><div class="dot-field"><label for="siteStatusFilter">Status</label><select id="siteStatusFilter"><option value="">All statuses</option>${[...new Set(pages.map(x=>x.status).filter(Boolean))].sort().map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></div><button class="dot-btn dot-website-clear" type="button" id="siteClearFilters">Clear</button></div><div id="sitePagesTable"></div></article>
- </section>
- ${recentEvents.length?`<section class="dot-website-section"><div class="dot-website-section-head"><div><span>Recent Activity</span><h2>Website Publishing Activity</h2><p>Most recent distribution events for the public website.</p></div><a class="dot-card-head-link" href="dot-distribution.html?target=website%3Adot.screenings4u.com">View distribution history</a></div><div class="dot-card"><div class="dot-table-wrap"><table class="dot-table"><thead><tr><th>Action</th><th>Revision</th><th>Date</th></tr></thead><tbody>${recentEvents.map(x=>`<tr><td><strong>${esc(String(x.action||'website update').replaceAll('_',' '))}</strong></td><td>${esc(String(x.revision??'—'))}</td><td>${fmtDate(x.created_at)}</td></tr>`).join('')}</tbody></table></div></div></section>`:''}`;
- const render=()=>{const q=($('#siteSearch').value||'').toLowerCase(),type=$('#siteTypeFilter').value,status=$('#siteStatusFilter').value,filtered=pages.filter(x=>(!q||[x.title,x.route,x.file_name,x.page_type].some(v=>String(v||'').toLowerCase().includes(q)))&&(!type||x.page_type===type)&&(!status||x.status===status));const rows=filtered.map(x=>[`<a class="dot-website-page-link" href="dot-website-page.html?page=${encodeURIComponent(x.page_key)}"><strong>${esc(x.title)}</strong></a><small class="dot-website-route">${esc(x.route)}</small>`,`<span class="dot-website-file">${esc(x.file_name)}</span>`,esc(x.page_type),badge(x.status),x.seo_index===false?badge('noindex'):badge('indexed'),x.nav_visible===false?badge('hidden'):badge('visible'),`<div class="dot-inline-actions"><a class="dot-btn small primary" href="dot-website-page.html?page=${encodeURIComponent(x.page_key)}">Manage</a><a class="dot-btn small" href="https://dot.screenings4u.com${esc(x.route)}" target="_blank" rel="noopener">Open</a></div>`]);$('#sitePagesTable').innerHTML=table(['Page','File','Type','Status','SEO','Navigation','Actions'],rows);$('#siteResultCount').textContent=`${filtered.length} page${filtered.length===1?'':'s'}`};
- ['siteSearch','siteTypeFilter','siteStatusFilter'].forEach(id=>document.getElementById(id)?.addEventListener(id==='siteSearch'?'input':'change',render));
- document.querySelectorAll('[data-type-quick]').forEach(btn=>btn.addEventListener('click',()=>{$('#siteTypeFilter').value=btn.dataset.typeQuick||'';document.querySelector('.dot-website-pages-card')?.scrollIntoView({behavior:'smooth',block:'start'});render()}));
- $('#siteClearFilters')?.addEventListener('click',()=>{$('#siteSearch').value='';$('#siteTypeFilter').value='';$('#siteStatusFilter').value='';render()});
- render();
+ renderBase({title:'DOT Website Management',copy:'Manage every registered page on dot.screenings4u.com, including live page settings, navigation, SEO, and distribution.',actions:'<a class="dot-btn primary" href="dot-distribution.html?target=website%3Adot.screenings4u.com">Website Distribution</a><a class="dot-btn" href="https://dot.screenings4u.com" target="_blank" rel="noopener">Open Live Website</a>'});
+ const d=await window.DOTApi.registry('inventory'),pages=d.website_pages||[];
+ $('#dotPageBody').innerHTML=`${metrics([['Website Pages',String(pages.length),'Registered public pages'],['Active',String(pages.filter(x=>x.status==='active').length),'Live pages'],['SEO Indexed',String(pages.filter(x=>x.seo_index!==false).length),'Search indexing enabled'],['Hidden From Nav',String(pages.filter(x=>x.nav_visible===false).length),'Not shown in navigation']])}
+ <div class="dot-card"><div class="dot-card-head"><div><h2>Website Pages</h2><p>Search and manage every registered public page.</p></div><a class="dot-btn" href="https://dot.screenings4u.com" target="_blank" rel="noopener">Open Website</a></div><div class="dot-card-body"><div class="dot-field-grid"><div class="dot-field"><label for="siteSearch">Search pages</label><input id="siteSearch" placeholder="Title, route, file, or type"></div><div class="dot-field"><label for="siteTypeFilter">Page type</label><select id="siteTypeFilter"><option value="">All types</option>${[...new Set(pages.map(x=>x.page_type).filter(Boolean))].sort().map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></div><div class="dot-field"><label for="siteStatusFilter">Status</label><select id="siteStatusFilter"><option value="">All statuses</option>${[...new Set(pages.map(x=>x.status).filter(Boolean))].sort().map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></div></div></div><div id="sitePagesTable"></div></div>`;
+ const render=()=>{const q=($('#siteSearch').value||'').toLowerCase(),type=$('#siteTypeFilter').value,status=$('#siteStatusFilter').value,rows=pages.filter(x=>(!q||[x.title,x.route,x.file_name,x.page_type].some(v=>String(v||'').toLowerCase().includes(q)))&&(!type||x.page_type===type)&&(!status||x.status===status)).map(x=>[`<a href="dot-website-page.html?page=${encodeURIComponent(x.page_key)}"><strong>${esc(x.title)}</strong></a><br><small>${esc(x.route)}</small>`,esc(x.file_name),esc(x.page_type),badge(x.status),x.seo_index===false?badge('noindex'):badge('indexed'),x.nav_visible===false?badge('hidden'):badge('visible'),`<div class="dot-inline-actions"><a class="dot-btn small primary" href="dot-website-page.html?page=${encodeURIComponent(x.page_key)}">Manage</a><a class="dot-btn small" href="https://dot.screenings4u.com${esc(x.route)}" target="_blank" rel="noopener">Open</a></div>`]);$('#sitePagesTable').innerHTML=table(['Page','File','Type','Status','SEO','Navigation','Actions'],rows)};
+ ['siteSearch','siteTypeFilter','siteStatusFilter'].forEach(id=>document.getElementById(id)?.addEventListener(id==='siteSearch'?'input':'change',render));render();
 }
-
 async function loadPortalControl(){renderBase({title:'DOT Portal Control',copy:'Open any DOT portal to manage its identity, every registered page, runtime distribution, and connected operational workflows.',actions:'<a class="dot-btn" href="dot-distribution.html">Distribution Management</a>'});const d=await window.DOTApi.registry('inventory');const rows=(d.portals||[]).map(x=>[`<strong>${esc(x.label)}</strong><small>${esc(x.portal_code)}</small>`,esc(x.portal_kind),esc(x.agency_code||'All DOT'),`<span>${esc(x.domain)}</span>`,`<a href="dot-portal-detail.html?portal=${encodeURIComponent(x.portal_code)}"><strong>${esc(String(x.page_count||0))}</strong> pages</a>`,badge(x.status),`<a class="dot-btn small primary" href="dot-portal-detail.html?portal=${encodeURIComponent(x.portal_code)}">Manage Portal</a>`]);$('#dotPageBody').innerHTML=metrics([['DOT Portals',rows.length,'Registered control targets'],['Portal Pages',String((d.portal_pages||[]).length),'Registered managed pages'],['Agency Portals',String((d.portals||[]).filter(x=>x.portal_kind==='agency').length),'FMCSA / FAA / FRA / FTA / PHMSA / USCG'],['Management Host','dot-portal','Central control plane']])+`<div class="dot-card"><div class="dot-card-head"><div><h2>Managed DOT Portals</h2><p>Select a portal to manage its pages and connected operations.</p></div></div>${table(['Portal','Type','Agency','Host','Pages','Status','Management'],rows)}</div>`}
 async function loadAgencies(){renderBase({title:'DOT Agency Management',copy:'Central agency workspace for FMCSA, FAA, FRA, FTA, PHMSA, and USCG program configuration.',actions:''});$('#dotPageBody').innerHTML=`<div class="dot-module-grid">${[['FMCSA','Motor carrier and CDL driver programs'],['FAA','Aviation safety-sensitive programs'],['FRA','Railroad drug and alcohol programs'],['FTA','Transit agency programs'],['PHMSA','Pipeline operator programs'],['USCG','Maritime drug testing programs']].map(([a,b])=>`<a class="dot-module" href="dot-agency-detail.html?agency=${encodeURIComponent(a)}"><b>${a}</b><span>${b}</span></a>`).join('')}</div><div class="dot-card" style="margin-top:15px"><div class="dot-card-head"><div><h2>Agency Workspace</h2><p>Select an agency to load its DOT configuration.</p></div></div><div class="dot-card-body" id="agencyBody"><div class="dot-empty">Choose a DOT agency above.</div></div></div>`;document.querySelectorAll('[data-agency]').forEach(a=>a.onclick=async e=>{e.preventDefault();const agency=a.dataset.agency;$('#agencyBody').innerHTML='<div class="dot-empty"><div class="dot-spinner"></div>Loading agency records…</div>';try{const d=await window.DOTApi.call('agency_workspace',{agency:agency.toLowerCase()});const rows=get(d,'programs','registrations','records').map(x=>[name(x),esc(x.organization_name||x.employer_name||x.organization_id||'—'),badge(x.status||'active')]);$('#agencyBody').innerHTML=table(['Program / Record','Organization','Status'],rows)}catch(err){$('#agencyBody').innerHTML=`<div class="dot-empty">${esc(err.message)}</div>`}})}
 async function loadUsers(){renderBase({title:'DOT Users & Portal Access',copy:'Manage staff access to the DOT management portal and customer-facing DOT portal access relationships.',actions:'<a class="dot-btn primary" href="dot-user-detail.html?mode=invite">Invite DOT User</a>'});let d={};try{d=await window.DOTApi.call('portal_access')}catch(e){showError(e);return}const members=get(d,'memberships','users').map((x,i)=>[esc(x.email||x.user_email||x.user_id||'—'),esc(x.role_code||x.role||'—'),esc(x.organization_name||x.organization_id||'—'),badge(x.status||'active'),`<a class="dot-btn small" href="dot-user-detail.html?row=${i}">Manage</a>`]);$('#dotPageBody').innerHTML=table(['User','Role','Account','Status','Manage'],members)}
