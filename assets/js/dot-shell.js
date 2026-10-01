@@ -6,7 +6,7 @@ const groups=[
  ['Control Center',[['dot-dashboard.html','Overview','⌂'],['dot-website.html','DOT Website','◫'],['dot-portal-control.html','Portal Control','◎'],['dot-distribution.html','Distribution','⇧']]],
  ['Customers',[['dot-ctpas.html','C/TPAs','◈'],['dot-employers.html','Employers','▣'],['dot-owner-operators.html','Owner-Operators','◇'],['dot-drivers.html','Drivers','◉'],['dot-users-access.html','Users & Access','♙']]],
  ['Programs & Testing',[['dot-programs.html','Programs','≡'],['dot-pools.html','Consortiums & Pools','⊙'],['dot-random-selections.html','Random Selections','⌁'],['dot-testing-orders.html','Testing Orders','✚'],['dot-results.html','Results','✓']]],
- ['Compliance',[['dot-compliance.html','Compliance Cases','⚑'],['dot-clearinghouse.html','Clearinghouse','⇄'],['dot-return-to-duty.html','Return-to-Duty / SAP','↺'],['dot-agencies.html','DOT Agencies','✦']]],
+ ['Compliance',[['dot-compliance.html','Compliance Cases','⚑'],['dot-clearinghouse.html','Clearinghouse','⇄'],['dot-return-to-duty.html','Return-to-Duty / SAP','↺'],['dot-follow-up-testing.html','Follow-Up Testing','⟳'],['dot-agencies.html','DOT Agencies','✦']]],
  ['Commerce & Records',[['dot-catalog.html','Website Plans & Pricing','$'],['dot-ctpa-pricing.html','C/TPA Testing Pricing','¢'],['dot-orders.html','Service Orders','▤'],['dot-invoices.html','Invoices','▧'],['dot-documents.html','Documents','▱'],['dot-training.html','Training Records','△']]],
  ['Administration',[['dot-notifications.html','Notifications','●'],['dot-demo-management.html','Demo Management','◫'],['dot-support.html','Support','?'],['dot-integrations.html','Integrations','⌘'],['dot-settings.html','Settings','⚙'],['dot-audit.html','Audit History','☷']]]
 ];

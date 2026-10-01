@@ -288,6 +288,6 @@ async function load(){
  };
 }
 
-async function start(){const state=await DOTAuth.requireAuth();if(!state)return;await load()}
+async function start(){const qs=new URLSearchParams(location.search);if(qs.get('module')==='plans')return;const state=await DOTAuth.requireAuth();if(!state)return;await load()}
 addEventListener('DOMContentLoaded',()=>start().catch(e=>{console.error(e);if($('#recordStatus'))notice(e?.message||String(e),true)}),{once:true});
 })();
