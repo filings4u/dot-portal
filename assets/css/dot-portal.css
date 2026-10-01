@@ -210,12 +210,72 @@
 .demo-admin-page,.demo-admin-page .dot-grid,.demo-hours-card,.demo-hours-card .dot-card-body,.demo-hours-grid{min-width:0;max-width:100%}.demo-hours-card .dot-card-head{align-items:center}.demo-hours-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:14px;align-items:end}.demo-hours-days{grid-column:1/-1}.demo-day-picks{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;min-width:0}.demo-day-pick{position:relative;cursor:pointer;min-width:0}.demo-day-pick input{position:absolute;opacity:0;pointer-events:none}.demo-day-pick span{display:flex;align-items:center;justify-content:center;min-width:0;min-height:40px;border:1px solid var(--dot-line);border-radius:8px;background:#fff;color:var(--dot-blue);font-size:11px;font-weight:850}.demo-day-pick input:checked+span{border-color:#8fb1df;background:#eaf2ff;box-shadow:inset 0 0 0 1px #245b9e;color:#17365f}.demo-hours-card .dot-field{min-width:0}.demo-hours-card .dot-field label{display:block;margin-bottom:6px;color:#36516f;font-size:10px;font-weight:900;letter-spacing:.035em;text-transform:uppercase}.demo-hours-card .dot-field input,.demo-hours-card .dot-field select{width:100%;max-width:100%;min-width:0;min-height:40px;padding:8px 10px;border:1px solid #cfd9e6;border-radius:8px;background:#fff;color:#17365f}.demo-hours-card .dot-field input:focus,.demo-hours-card .dot-field select:focus{outline:none;border-color:var(--dot-blue);box-shadow:0 0 0 3px rgba(36,70,127,.09)}.demo-hours-toggle{min-width:0}.demo-switch{display:flex!important;align-items:center;gap:9px;min-width:0;min-height:40px;margin:0!important;text-transform:none!important;letter-spacing:0!important;cursor:pointer}.demo-switch input{position:absolute;opacity:0;pointer-events:none}.demo-switch span{position:relative;flex:0 0 38px;width:38px;height:22px;border-radius:999px;background:#c9d3df;transition:.18s}.demo-switch span:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:.18s}.demo-switch input:checked+span{background:#1f7a4f}.demo-switch input:checked+span:after{transform:translateX(16px)}.demo-switch strong{min-width:0;color:var(--dot-text);font-size:11px;line-height:1.35;white-space:normal}.demo-hours-actions{margin-top:16px;justify-content:flex-end}.demo-confirm-card{width:min(500px,100%)}
 @media(max-width:1100px){.demo-hours-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.demo-hours-days{grid-column:1/-1}}@media(max-width:760px){.demo-hours-grid{grid-template-columns:1fr 1fr}.demo-day-picks{grid-template-columns:repeat(4,minmax(0,1fr))}.demo-hours-days,.demo-hours-toggle{grid-column:1/-1}.demo-hours-actions .dot-btn{width:100%}}@media(max-width:520px){.demo-hours-grid{grid-template-columns:1fr}.demo-day-picks{grid-template-columns:repeat(2,minmax(0,1fr))}.demo-hours-days,.demo-hours-toggle{grid-column:1/-1}}
 
-/* Demo management hard viewport containment — prevents page-level horizontal drift */
-html,body{max-width:100%;overflow-x:hidden}
-.dot-app,.dot-main,#dotPageMount,.dot-page,.demo-admin-page,.demo-admin-page .dot-grid,.demo-admin-page .dot-card,.demo-admin-page .dot-card-body,.demo-admin-page .dot-table-wrap{min-width:0;max-width:100%}
-.demo-admin-page .dot-card{overflow:hidden}
-.demo-admin-page .dot-table-wrap{width:100%;overflow-x:auto;overscroll-behavior-inline:contain}
-.demo-admin-page .dot-table{max-width:100%}
-.demo-admin-page .dot-grid>[style*="grid-column:span 8"],.demo-admin-page .dot-grid>[style*="grid-column:span 4"]{min-width:0}
-.demo-admin-page .dot-actions{min-width:0}
-.demo-admin-page .dot-actions>*{max-width:100%}
+/* Global DOT portal shell: shell never scrolls; only content/nav panes scroll. */
+html,body{
+  width:100%;
+  height:100%;
+  min-height:100%;
+  overflow:hidden;
+}
+body{
+  max-height:100vh;
+}
+.dot-app{
+  width:100%;
+  height:100vh;
+  min-height:0;
+  overflow:hidden;
+}
+.dot-sidebar{
+  height:100vh;
+  min-height:0;
+  overflow:hidden;
+}
+.dot-nav{
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+.dot-main{
+  min-width:0;
+  height:100vh;
+  min-height:0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.dot-topbar{
+  flex:0 0 var(--dot-topbar);
+}
+#dotPageMount{
+  flex:1 1 auto;
+  min-width:0;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+}
+.dot-page{
+  min-width:0;
+  max-width:100%;
+}
+.dot-table-wrap{
+  max-width:100%;
+}
+
+/* Demo page containment remains page-scoped; it must never control shell scrolling. */
+.demo-admin-page,
+.demo-admin-page .dot-grid,
+.demo-admin-page .dot-card,
+.demo-admin-page .dot-card-body,
+.demo-admin-page .dot-table-wrap{
+  min-width:0;
+  max-width:100%;
+}
+.demo-admin-page .dot-table-wrap{
+  overflow-x:auto;
+}
+.demo-admin-page .dot-grid>[style*="grid-column:span 8"],
+.demo-admin-page .dot-grid>[style*="grid-column:span 4"]{
+  min-width:0;
+}
