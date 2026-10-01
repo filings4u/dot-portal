@@ -17,7 +17,6 @@ const listPages={
  'dot-employers.html':{action:'employers',title:'DOT Employers',copy:'Manage direct and C/TPA-sponsored employers, USDOT details, agencies, and status.',headers:['Employer','USDOT / MC','Agency','Status'],rows:d=>get(d,'employers').map(x=>[name(x),esc([x.dot_number,x.mc_number].filter(Boolean).join(' / ')||'—'),esc(x.applicable_dot_agency||x.dot_agency||'—'),badge(x.status)])},
  'dot-owner-operators.html':{action:'owner_operators',title:'Owner-Operators',copy:'Manage FMCSA owner-operator accounts and consortium participation.',headers:['Owner-Operator','USDOT / MC','Consortium','Status'],rows:d=>get(d,'owner_operators').map(x=>[name(x),esc([x.dot_number,x.mc_number].filter(Boolean).join(' / ')||'—'),esc(x.consortium_name||x.pool_name||'—'),badge(x.status)])},
  'dot-drivers.html':{action:'drivers',title:'DOT Drivers',copy:'Manage safety-sensitive drivers and DOT workforce records.',headers:['Driver','Employer','Agency / CDL','Status'],rows:d=>get(d,'drivers','employees').map(x=>[name(x),esc(x.employer_name||x.employer_id||'—'),esc([x.dot_agency,x.cdl_number].filter(Boolean).join(' · ')||'—'),badge(x.status||x.employment_status)])},
- 'dot-programs.html':{action:'programs',title:'DOT Programs',copy:'Manage employer programs, testing panels, agencies, and compliance settings.',headers:['Program','Employer','Agency','Status'],rows:d=>get(d,'programs').map(x=>[name(x),esc(x.employer_name||x.employer_id||'—'),esc(x.dot_agency||x.agency||'—'),badge(x.status)])},
  'dot-pools.html':{action:'pools',title:'Consortiums & Random Pools',copy:'Manage DOT consortiums, random pools, ownership, membership, and selection setup.',headers:['Pool / Consortium','Owner','Agency','Members','Status'],rows:d=>get(d,'pools').map(x=>[name(x),esc(x.ctpa_name||x.employer_name||x.ctpa_id||x.employer_id||'—'),esc(x.dot_agency||'—'),esc(x.member_count??x.population_size??'—'),badge(x.status)])},
  'dot-random-selections.html':{action:'selections',title:'Random Selections',copy:'Review DOT random selection events, population, completion, and notices.',headers:['Selection','Pool','Date','Population','Status'],rows:d=>get(d,'selections').map(x=>[esc(x.selection_number||x.id||'—'),esc(x.pool_name||x.pool_id||'—'),fmtDate(x.selection_date||x.created_at),esc(x.population_size??'—'),badge(x.status)])},
  'dot-testing-orders.html':{action:'testing',title:'DOT Testing Orders',copy:'Manage drug and alcohol testing requests, collections, status, and handoff.',headers:['Order','Person','Employer','Test','Status'],rows:d=>get(d,'testing_orders','orders').map(x=>[esc(x.order_number||x.id||'—'),esc(x.driver_name||x.employee_name||x.employee_id||'—'),esc(x.employer_name||x.employer_id||'—'),esc([x.test_reason,x.test_type].filter(Boolean).join(' · ')||'—'),badge(x.status)])},
@@ -34,6 +33,86 @@ const listPages={
  'dot-support.html':{action:'support',title:'DOT Support',copy:'Manage support activity for DOT C/TPAs, employers, owner-operators, drivers, and portal users.',headers:['Ticket','Customer','Priority','Updated','Status'],rows:d=>get(d,'tickets','support_tickets').map(x=>[esc(x.ticket_number||x.id||'—'),esc(x.customer_name||x.organization_id||'—'),esc(x.priority||'—'),fmtDate(x.updated_at||x.created_at),badge(x.status)])},
  'dot-audit.html':{action:'audit_history',title:'DOT Audit History',copy:'Review DOT management actions and operational audit events.',headers:['Event','Actor','Resource','Date','Status'],rows:d=>get(d,'audit','events').map(x=>[esc(x.action||x.event_type||'—'),esc(x.actor_email||x.actor_id||'—'),esc(x.resource_type||x.resource_id||'—'),fmtDate(x.created_at),badge(x.status||'recorded')])}
 };
+
+function programSource(x){
+ const raw=String(x.source_type||x.owner_type||x.created_source||x.program_source||'').toLowerCase();
+ if(x.ctpa_id||x.ctpa_name||x.ctpa_organization_id||raw.includes('ctpa')||raw.includes('c/tpa'))return 'C/TPA';
+ if(x.admin_created===true||x.created_by_admin===true||x.management_created===true||raw.includes('admin')||raw.includes('management'))return 'Admin';
+ if(x.employer_id||x.employer_name||x.organization_id||raw.includes('employer'))return 'Direct Employer';
+ return 'Admin';
+}
+function programAccount(x){return x.ctpa_name||x.employer_name||x.organization_name||x.customer_name||x.organizations?.legal_name||x.account_name||x.ctpa_id||x.employer_id||x.organization_id||'screenings4u DOT'}
+function programName(x){return x.name||x.program_name||x.title||x.program_code||x.id||'DOT Program'}
+function programAgency(x){return x.dot_agency||x.agency||x.regulatory_authority||x.agency_code||'—'}
+function programPanel(x){return x.testing_panel||x.panel_name||x.panel||x.testing_method||x.program_type||'—'}
+function programDirectoryIndex(ctpas=[],employers=[]){
+ const byId=new Map(),byOrg=new Map();
+ const add=(x,type)=>{if(!x)return;const record={...x,_directoryType:type};if(x.id)byId.set(String(x.id),record);if(x.organization_id)byOrg.set(String(x.organization_id),record);if(x.organizations?.id)byOrg.set(String(x.organizations.id),record)};
+ ctpas.forEach(x=>add(x,'C/TPA'));employers.forEach(x=>add(x,'Direct Employer'));
+ return {byId,byOrg};
+}
+function resolveProgramCompany(x,src,index){
+ let rec=null;
+ if(src==='C/TPA')rec=index.byId.get(String(x.ctpa_id||''))||index.byOrg.get(String(x.ctpa_organization_id||x.organization_id||''));
+ else if(src==='Direct Employer')rec=index.byId.get(String(x.employer_id||''))||index.byOrg.get(String(x.organization_id||''));
+ const org=rec?.organizations||x.organizations||{};
+ const company=rec?.legal_name||rec?.company_name||rec?.name||org.legal_name||org.dba_name||x.ctpa_name||x.employer_name||x.organization_name||x.customer_name||x.account_name||(src==='Admin'?'screenings4u':'—');
+ const dba=rec?.dba_name||org.dba_name||x.dba_name||'';
+ const dot=rec?.dot_number||rec?.usdot_number||x.dot_number||x.usdot_number||'';
+ const mc=rec?.mc_number||x.mc_number||'';
+ const email=rec?.support_email||rec?.primary_email||org.primary_email||rec?.email||x.contact_email||x.email||'';
+ const phone=rec?.support_phone||rec?.phone||org.phone||x.contact_phone||x.phone||'';
+ const accountId=(src==='C/TPA'?(x.ctpa_id||rec?.id):(src==='Direct Employer'?(x.employer_id||rec?.id):(x.organization_id||'')))||'';
+ const orgId=x.organization_id||x.ctpa_organization_id||rec?.organization_id||org.id||'';
+ return {company,dba,dot,mc,email,phone,accountId,orgId};
+}
+function companyCell(c,src){
+ const identifiers=[];
+ if(c.dot)identifiers.push(`USDOT ${esc(c.dot)}`);
+ if(c.mc)identifiers.push(`MC ${esc(c.mc)}`);
+ const contact=[c.email,c.phone].filter(Boolean).map(esc).join(' · ');
+ const ids=[];
+ if(c.accountId)ids.push(`Account ${esc(c.accountId)}`);
+ if(c.orgId&&c.orgId!==c.accountId)ids.push(`Org ${esc(c.orgId)}`);
+ return `<div class="dot-program-company"><strong>${esc(c.company)}</strong>${c.dba&&c.dba!==c.company?`<small>DBA: ${esc(c.dba)}</small>`:''}${identifiers.length?`<small>${identifiers.join(' · ')}</small>`:''}${contact?`<small>${contact}</small>`:''}${ids.length?`<small class="dot-muted-id">${ids.join(' · ')}</small>`:''}</div>`;
+}
+async function loadPrograms(){
+ const scopedCtpa=new URLSearchParams(location.search).get('ctpa_id')||'';
+ const actions=(scopedCtpa?`<a class="dot-btn" href="dot-ctpa-detail.html?id=${encodeURIComponent(scopedCtpa)}">Back to C/TPA</a>`:'')+`<a class="dot-btn primary" href="dot-record.html?module=programs&mode=new${scopedCtpa?'&ctpa_id='+encodeURIComponent(scopedCtpa):''}">New Program</a>`;
+ renderBase({title:'DOT Programs',copy:scopedCtpa?'All DOT programs for the selected C/TPA account.':'All DOT programs created under C/TPAs, direct employers, and screenings4u administrators.',actions});
+ document.querySelector('.dot-page')?.classList.add('program-admin-page');
+ let d,ctpaData={ctpas:[]},employerData={employers:[]};
+ if(scopedCtpa){
+   const settled=await Promise.allSettled([window.DOTApi.call('customer_detail',{customer_type:'ctpa',customer_id:scopedCtpa}),window.DOTApi.call('ctpas'),window.DOTApi.call('employers')]);
+   d=settled[0].status==='fulfilled'?settled[0].value:{programs:[]};ctpaData=settled[1].status==='fulfilled'?settled[1].value:{ctpas:[]};employerData=settled[2].status==='fulfilled'?settled[2].value:{employers:[]};
+ }else{
+   const settled=await Promise.allSettled([window.DOTApi.call('programs'),window.DOTApi.call('ctpas'),window.DOTApi.call('employers')]);
+   d=settled[0].status==='fulfilled'?settled[0].value:{programs:[]};ctpaData=settled[1].status==='fulfilled'?settled[1].value:{ctpas:[]};employerData=settled[2].status==='fulfilled'?settled[2].value:{employers:[]};
+ }
+ const programs=get(d,'programs').filter(Boolean),directory=programDirectoryIndex(get(ctpaData,'ctpas'),get(employerData,'employers'));
+ const counts={ctpa:0,direct:0,admin:0,active:0};
+ programs.forEach(x=>{const src=programSource(x);if(src==='C/TPA')counts.ctpa++;else if(src==='Direct Employer')counts.direct++;else counts.admin++;if(/active|enabled|current/i.test(String(x.status||'active')))counts.active++;});
+ const rows=programs.map((x,i)=>{
+   const src=programSource(x),srcClass=src==='C/TPA'?'ctpa':src==='Direct Employer'?'direct':'admin',company=resolveProgramCompany(x,src,directory);
+   const search=[programName(x),company.company,company.dba,company.dot,company.mc,company.email,company.phone,company.accountId,company.orgId,src,programAgency(x),programPanel(x)].filter(Boolean).join(' ').toLowerCase();
+   return {
+     source:src,
+     agency:String(programAgency(x)),
+     status:String(x.status||'active'),
+     html:`<tr data-program-row data-source="${esc(srcClass)}" data-agency="${esc(String(programAgency(x)).toLowerCase())}" data-search="${esc(search)}"><td><strong>${esc(programName(x))}</strong><small>${esc(x.program_code||x.id||'')}</small></td><td><span class="dot-source-pill ${srcClass}">${esc(src)}</span></td><td>${companyCell(company,src)}</td><td>${esc(programAgency(x))}</td><td>${esc(programPanel(x))}</td><td>${badge(x.status||'active')}</td><td><a class="dot-btn small" href="dot-record.html?module=programs&row=${i}${scopedCtpa?'&ctpa_id='+encodeURIComponent(scopedCtpa):''}">Manage</a></td></tr>`
+   };
+ });
+ const agencies=[...new Set(rows.map(r=>r.agency).filter(v=>v&&v!=='—'))].sort();
+ $('#dotPageBody').innerHTML=`${metrics([['All Programs',programs.length,'Across every DOT account'],['C/TPA Programs',counts.ctpa,'Managed by C/TPAs'],['Direct Employer',counts.direct,'Employer-owned programs'],['Admin Created',counts.admin,'Created by screenings4u staff']])}
+ <div class="dot-card dot-program-directory">
+  <div class="dot-card-head"><div><h2>Program Directory</h2><p>Programs are matched to their company records so you can see exactly which C/TPA, direct employer, or admin account owns each program.</p></div><span class="dot-badge active" id="programVisibleCount">${programs.length} programs</span></div>
+  <div class="dot-card-body dot-program-filters"><div class="dot-filter-row"><input id="programSearch" type="search" placeholder="Search program, company, USDOT, MC, email, agency or panel"><select id="programSource"><option value="">All sources</option><option value="ctpa">C/TPAs</option><option value="direct">Direct employers</option><option value="admin">Admins</option></select><select id="programAgency"><option value="">All agencies</option>${agencies.map(a=>`<option value="${esc(a.toLowerCase())}">${esc(a)}</option>`).join('')}</select></div></div>
+  <div class="dot-table-wrap"><table class="dot-table"><thead><tr><th>Program</th><th>Source</th><th>Company / Account Details</th><th>Agency</th><th>Panel / Type</th><th>Status</th><th>Manage</th></tr></thead><tbody id="programRows">${rows.length?rows.map(r=>r.html).join(''):'<tr><td colspan="7"><div class="dot-empty">No DOT programs found.</div></td></tr>'}</tbody></table></div>
+ </div>`;
+ const filter=()=>{const q=($('#programSearch')?.value||'').trim().toLowerCase(),src=$('#programSource')?.value||'',agency=$('#programAgency')?.value||'';let visible=0;document.querySelectorAll('[data-program-row]').forEach(tr=>{const ok=(!q||tr.dataset.search.includes(q))&&(!src||tr.dataset.source===src)&&(!agency||tr.dataset.agency===agency);tr.hidden=!ok;if(ok)visible++;});if($('#programVisibleCount'))$('#programVisibleCount').textContent=`${visible} program${visible===1?'':'s'}`};
+ ['programSearch','programSource','programAgency'].forEach(id=>$('#'+id)?.addEventListener(id==='programSearch'?'input':'change',filter));
+}
+
 function genericActionButtons(action){return `<a class="dot-btn primary" href="dot-record.html?module=${encodeURIComponent(action)}&mode=new">New Record</a>`}
 async function loadList(c){const scopedCtpa=new URLSearchParams(location.search).get('ctpa_id')||'';const actions=(scopedCtpa?`<a class="dot-btn" href="dot-ctpa-detail.html?id=${encodeURIComponent(scopedCtpa)}">Back to C/TPA</a>`:'')+genericActionButtons(c.action);renderBase({title:c.title,copy:scopedCtpa?c.copy+' Showing records for the selected C/TPA only.':c.copy,actions});const d=scopedCtpa?await window.DOTApi.call('customer_detail',{customer_type:'ctpa',customer_id:scopedCtpa}):await window.DOTApi.call(c.action);const rows=c.rows(d).map((r,i)=>[...r,`<a class="dot-btn small" href="dot-record.html?module=${encodeURIComponent(c.action)}&row=${i}${scopedCtpa?'&ctpa_id='+encodeURIComponent(scopedCtpa):''}">Manage</a>`]);$('#dotPageBody').innerHTML=metrics([['Records',rows.length,'Live DOT records'],['Module',c.action,'DOT data source'],['C/TPA Scope',scopedCtpa?'Selected':'All','Management filter'],['Host','dot-portal','Management']])+table([...c.headers,'Manage'],rows)}
 async function loadCtpas(){
@@ -270,7 +349,7 @@ async function loadAgencies(){renderBase({title:'DOT Agency Management',copy:'Ce
 async function loadUsers(){renderBase({title:'DOT Users & Portal Access',copy:'Manage staff access to the DOT management portal and customer-facing DOT portal access relationships.',actions:'<a class="dot-btn primary" href="dot-user-detail.html?mode=invite">Invite DOT User</a>'});let d={};try{d=await window.DOTApi.call('portal_access')}catch(e){showError(e);return}const members=get(d,'memberships','users').map((x,i)=>[esc(x.email||x.user_email||x.user_id||'—'),esc(x.role_code||x.role||'—'),esc(x.organization_name||x.organization_id||'—'),badge(x.status||'active'),`<a class="dot-btn small" href="dot-user-detail.html?row=${i}">Manage</a>`]);$('#dotPageBody').innerHTML=table(['User','Role','Account','Status','Manage'],members)}
 async function loadIntegrations(){renderBase({title:'DOT Integrations',copy:'DOT-only external systems and data connections, isolated from the enterprise application.',actions:''});let d={};try{d=await window.DOTApi.call('integrations')}catch(e){d={integrations:[]};$('#dotPageStatus').innerHTML=`<div class="dot-banner warning"><div><strong>Integration inventory is not available yet.</strong><span>${esc(e.message)}</span></div></div>`}const rows=get(d,'integrations').map(x=>[name(x),esc(x.provider||x.integration_type||'—'),badge(x.status),fmtDate(x.updated_at)]);$('#dotPageBody').innerHTML=table(['Integration','Provider','Status','Updated'],rows)}
 async function loadSettings(){renderBase({title:'DOT Portal Settings',copy:'Configuration for the standalone DOT management portal only.',actions:'<a class="dot-btn primary" href="dot-settings-general.html">Manage Settings</a>'});$('#dotPageBody').innerHTML=`<div class="dot-card"><div class="dot-card-head"><div><h2>Portal Identity</h2><p>These settings belong to the dedicated DOT control plane.</p></div></div><div class="dot-card-body"><div class="dot-field-grid"><div class="dot-field"><label>Management Host</label><input value="dot-portal.screenings4u.com" readonly></div><div class="dot-field"><label>Managed Website</label><input value="https://dot.screenings4u.com" readonly></div><div class="dot-field"><label>Portal Name</label><input id="portalName" value="screenings4u DOT Management Portal"></div><div class="dot-field"><label>Backend Adapter</label><input value="DOT-only Supabase Edge Function" readonly></div></div><div class="dot-help">No Enterprise navigation, CSS, or JavaScript files are loaded by this portal.</div></div></div>`}
-async function load(){if(page==='dot-ctpas.html')return loadCtpas();if(page==='dot-orders.html')return loadOrders();if(listPages[page])return loadList(listPages[page]);if(page==='dot-dashboard.html')return loadDashboard();if(page==='dot-website.html')return loadWebsite();if(page==='dot-portal-control.html')return loadPortalControl();if(page==='dot-agencies.html')return loadAgencies();if(page==='dot-users-access.html')return loadUsers();if(page==='dot-integrations.html')return loadIntegrations();if(page==='dot-settings.html')return loadSettings();renderBase({title:'DOT Management',copy:'Standalone DOT management workspace.'});$('#dotPageBody').innerHTML='<div class="dot-card"><div class="dot-empty">This DOT module is ready for its dedicated controller.</div></div>'}
+async function load(){if(page==='dot-ctpas.html')return loadCtpas();if(page==='dot-orders.html')return loadOrders();if(page==='dot-programs.html')return loadPrograms();if(listPages[page])return loadList(listPages[page]);if(page==='dot-dashboard.html')return loadDashboard();if(page==='dot-website.html')return loadWebsite();if(page==='dot-portal-control.html')return loadPortalControl();if(page==='dot-agencies.html')return loadAgencies();if(page==='dot-users-access.html')return loadUsers();if(page==='dot-integrations.html')return loadIntegrations();if(page==='dot-settings.html')return loadSettings();renderBase({title:'DOT Management',copy:'Standalone DOT management workspace.'});$('#dotPageBody').innerHTML='<div class="dot-card"><div class="dot-empty">This DOT module is ready for its dedicated controller.</div></div>'}
 async function start(){const state=await window.DOTAuth.requireAuth();if(!state)return;window.DOTShell.render(state);await load()}
 window.addEventListener('DOMContentLoaded',()=>start().catch(showError),{once:true});
 })();

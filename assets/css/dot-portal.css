@@ -279,3 +279,21 @@ body{
 .demo-admin-page .dot-grid>[style*="grid-column:span 4"]{
   min-width:0;
 }
+
+/* DOT Programs directory */
+.program-admin-page .dot-program-directory{margin-top:15px}
+.program-admin-page .dot-program-filters{padding-top:12px;padding-bottom:12px;border-bottom:1px solid var(--dot-line-soft)}
+.program-admin-page .dot-filter-row{display:grid;grid-template-columns:minmax(300px,1fr) 210px 180px;gap:10px;align-items:center}
+.program-admin-page .dot-filter-row input,.program-admin-page .dot-filter-row select{width:100%;min-height:40px;padding:8px 11px;border:1px solid #cfd9e6;border-radius:8px;background:#fff;color:#17375f;font:inherit;outline:none}
+.program-admin-page .dot-filter-row input:focus,.program-admin-page .dot-filter-row select:focus{border-color:var(--dot-blue);box-shadow:0 0 0 3px rgba(36,70,127,.09)}
+.program-admin-page .dot-table td strong{display:block;color:var(--dot-navy)}
+.program-admin-page .dot-table td small{display:block;margin-top:3px;color:var(--dot-muted);font-size:10px}
+.program-admin-page .dot-source-pill{display:inline-flex;align-items:center;min-height:24px;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:850;letter-spacing:.02em;white-space:nowrap;background:#eef3f9;color:#435b78}
+.program-admin-page .dot-source-pill.ctpa{background:#eaf2ff;color:#24467f}
+.program-admin-page .dot-source-pill.direct{background:#e9f8ef;color:#167247}
+.program-admin-page .dot-source-pill.admin{background:#fff2e8;color:#b74800}
+@media(max-width:900px){.program-admin-page .dot-filter-row{grid-template-columns:1fr 1fr}.program-admin-page .dot-filter-row input{grid-column:1/-1}.program-admin-page .dot-table{min-width:1040px}}
+@media(max-width:620px){.program-admin-page .dot-filter-row{grid-template-columns:1fr}.program-admin-page .dot-filter-row input{grid-column:auto}}
+
+/* DOT Programs — company ownership details */
+.dot-program-company{min-width:260px;display:flex;flex-direction:column;gap:3px;line-height:1.25}.dot-program-company>strong{color:#0b356d}.dot-program-company>small{display:block;color:#607796;font-size:11px}.dot-program-company .dot-muted-id{color:#8797ac;font-size:10px;word-break:break-all}.program-admin-page .dot-program-directory .dot-table th:nth-child(3){min-width:290px}
