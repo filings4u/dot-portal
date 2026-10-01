@@ -1,5 +1,6 @@
 (()=>{
 'use strict';
+if(new URLSearchParams(location.search).get('module')==='billing')return;
 const $=s=>document.querySelector(s),qs=new URLSearchParams(location.search),esc=v=>DOTShell.escape(v);
 const titleCase=s=>String(s||'').replaceAll('_',' ').replaceAll('-',' ').replace(/\b\w/g,m=>m.toUpperCase());
 const badge=v=>`<span class="dot-status-pill ${/active|complete|paid|published|resolved|sent/i.test(v||'')?'ok':/error|failed|cancel|inactive|disabled|archived/i.test(v||'')?'bad':'warn'}">${esc(String(v||'—').replaceAll('_',' '))}</span>`;
