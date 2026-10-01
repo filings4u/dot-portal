@@ -54,9 +54,9 @@ function renderThread(){if(!active||!detail)return;const record=detail.record||{
  <div class="support-conversation" id="supportConversation">
   ${messages.length?messages.map(m=>`<article class="support-message ${messageClass(m)}"><div class="support-message-meta"><strong>${m.is_internal_note?'Internal Note':esc(label(m.sender_type||'message'))}</strong><span>${fmt(m.created_at)}</span></div><p>${esc(m.body||'')}</p></article>`).join(''):`<article class="support-message customer"><div class="support-message-meta"><strong>Customer</strong><span>${fmt(record.created_at)}</span></div><p>${esc(record.message||active.preview||'No message body was stored for this inquiry.')}</p></article>`}
  </div>
- <div class="support-response-area">
+ <div class="support-response-area" id="supportResponseArea">
   <div class="support-response-tabs"><button class="active" data-compose="reply">Reply to Customer</button>${['support_ticket','dot_support_ticket'].includes(active.kind)?'<button data-compose="note">Internal Note</button>':''}</div>
-  <textarea id="supportReplyText" rows="6" placeholder="Write a response to the customer..."></textarea>
+  <label class="support-reply-label" for="supportReplyText">Message</label><textarea id="supportReplyText" rows="5" placeholder="Write a response to the customer..."></textarea>
   <div class="support-compose-foot"><span id="supportComposeHint">Reply will be added to the support thread and emailed when an address is available.</span><button class="dot-btn primary" id="sendSupportReply">Send Reply</button></div>
  </div>`;
  $('#threadStatus').value=normalizeThreadStatus(active.status);if($('#threadPriority'))$('#threadPriority').value=active.priority||'normal';
