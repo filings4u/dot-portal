@@ -22,7 +22,7 @@ function shell(){
       </div>
     </header>
     <div id="employerStatus"></div>
-    <div id="employerBody"><div class="dot-card"><div class="dot-empty"><div class="dot-spinner"></div><p>Loading employers…</p></div></div></div>
+    <div id="employerBody"><div class="dot-card"><div class="dot-empty"><div class="dot-instant-placeholder" aria-hidden="true"></div></div></div></div>
   </section>`;
 }
 function notice(msg,error=false){

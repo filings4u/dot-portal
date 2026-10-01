@@ -19,7 +19,7 @@ function shell(){
  $('#dotPageMount').innerHTML=`<section class="dot-page ctpa-directory-page">
  <header class="dot-page-head"><div><span class="dot-eyebrow">DOT MANAGEMENT</span><h1>DOT C/TPAs</h1><p>Manage each C/TPA as one customer workspace with its subscription, portal access, users, orders, billing, and operational records.</p></div>
  <div class="dot-actions"><a class="dot-btn primary" href="dot-account-creation.html">Create C/TPA Account</a><a class="dot-btn" href="dot-portal-detail.html?portal=ctpa_dot">C/TPA Portal Control</a><button class="dot-btn" id="refreshCtpAs" type="button">Refresh</button></div></header>
- <div id="ctpaStatus"></div><div id="ctpaBody"><div class="dot-card"><div class="dot-empty"><div class="dot-spinner"></div><p>Loading C/TPA accounts…</p></div></div></div></section>`;
+ <div id="ctpaStatus"></div><div id="ctpaBody"><div class="dot-card"><div class="dot-empty"><div class="dot-instant-placeholder" aria-hidden="true"></div></div></div></div></section>`;
 }
 function notice(m,e=false){$('#ctpaStatus').innerHTML=`<div class="dot-banner ${e?'warning':''}"><div><strong>${e?'Action needs attention':'C/TPA update'}</strong><span>${esc(m)}</span></div></div>`}
 

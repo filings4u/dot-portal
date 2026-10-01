@@ -15,7 +15,7 @@ function shell(){
    <div class="dot-actions"><a class="dot-btn primary" href="dot-user-detail.html?mode=invite">Invite DOT User</a><a class="dot-btn" href="dot-portal-control.html">Portal Control</a><button class="dot-btn" id="refreshUsers" type="button">Refresh</button></div>
   </header>
   <div id="usersStatus"></div>
-  <div id="usersBody"><div class="dot-card"><div class="dot-empty"><div class="dot-spinner"></div><p>Loading users and portal access…</p></div></div></div>
+  <div id="usersBody"><div class="dot-card"><div class="dot-empty"><div class="dot-instant-placeholder" aria-hidden="true"></div></div></div></div>
  </section>`;
 }
 function notice(msg,error=false){$('#usersStatus').innerHTML=`<div class="dot-banner ${error?'warning':''}"><div><strong>${error?'Action needs attention':'Users & access update'}</strong><span>${esc(msg)}</span></div></div>`}

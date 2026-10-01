@@ -16,7 +16,7 @@ function shell(){
    <div class="dot-actions"><a class="dot-btn primary" href="dot-record.html?module=drivers&mode=new">Add Driver</a><a class="dot-btn" href="dot-testing-orders.html">Testing Orders</a><button class="dot-btn" id="refreshDrivers" type="button">Refresh</button></div>
   </header>
   <div id="driverStatus"></div>
-  <div id="driverBody"><div class="dot-card"><div class="dot-empty"><div class="dot-spinner"></div><p>Loading driver directory…</p></div></div></div>
+  <div id="driverBody"><div class="dot-card"><div class="dot-empty"><div class="dot-instant-placeholder" aria-hidden="true"></div></div></div></div>
  </section>`;
 }
 function notice(msg,error=false){$('#driverStatus').innerHTML=`<div class="dot-banner ${error?'warning':''}"><div><strong>${error?'Action needs attention':'Driver update'}</strong><span>${esc(msg)}</span></div></div>`}

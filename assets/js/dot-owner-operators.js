@@ -23,7 +23,7 @@ function shell(){
      </div>
    </header>
    <div id="ownerStatus"></div>
-   <div id="ownerBody"><div class="dot-card"><div class="dot-empty"><div class="dot-spinner"></div><p>Loading owner-operators…</p></div></div></div>
+   <div id="ownerBody"><div class="dot-card"><div class="dot-empty"><div class="dot-instant-placeholder" aria-hidden="true"></div></div></div></div>
  </section>`;
 }
 function notice(msg,error=false){

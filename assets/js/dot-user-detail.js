@@ -22,7 +22,7 @@ function shell(state,titleText,copy,actions=''){
  DOTShell.render(state);
  $('#dotPageMount').innerHTML=`<section class="dot-page user-detail-page">
   <header class="dot-page-head"><div><span class="dot-eyebrow">DOT CONTROL PLANE</span><h1>${esc(titleText)}</h1><p>${esc(copy)}</p></div><div class="dot-actions">${actions}</div></header>
-  <div id="userStatus"></div><div id="userBody"><div class="dot-card"><div class="dot-empty"><div class="dot-spinner"></div><p>Loading user access…</p></div></div></div>
+  <div id="userStatus"></div><div id="userBody"><div class="dot-card"><div class="dot-empty"><div class="dot-instant-placeholder" aria-hidden="true"></div></div></div></div>
  </section>`;
 }
 function accountMap(ctpas,employers,owners){
@@ -117,11 +117,11 @@ async function renderExisting(state,userId){
  <section id="portals" class="dot-account-section"><div class="dot-section-heading"><div><span>03</span><h2>Portal Availability</h2><p>Customer portal grants enabled for the organizations attached to this user. These grants are organization-level; the membership above controls whether this person belongs to that account.</p></div></div><div class="dot-card"><div class="dot-table-wrap"><table class="dot-table"><thead><tr><th>Portal</th><th>DOT Account</th><th>Status</th><th>Updated</th></tr></thead><tbody>${portalRows||'<tr><td colspan="4"><div class="dot-empty">No portal grants are registered for this user’s accounts.</div></td></tr>'}</tbody></table></div></div></section>
  <section id="add-access" class="dot-account-section"><div class="dot-section-heading"><div><span>04</span><h2>Add Account Access</h2><p>Connect this existing identity to another DOT customer account instead of creating a duplicate person.</p></div></div>${inviteForm(allAccounts,{first_name:p.first_name||'',last_name:p.last_name||'',email,role:'member'},'Connect Existing User','Uses the same email identity and adds another account membership / access relationship.')}</section>`;
  wireAccountTypeSuggestion();
- $('#sendInvite').onclick=async()=>{try{await sendInviteFromForm();setTimeout(()=>location.reload(),700)}catch(e){notice(e.message,true)}};
+ $('#sendInvite').onclick=async()=>{try{await sendInviteFromForm();setTimeout(()=>window.DOTRouter?.refresh(),150)}catch(e){notice(e.message,true)}};
  const resend=async(org,role,type)=>{if(!email)throw new Error('This user does not have an email address.');const out=await DOTApi.invoke(DOT_PORTAL_CONFIG.inviteFunction,{organization_id:org,email,first_name:p.first_name||'',last_name:p.last_name||'',role:role||'member',account_type:accountTypeForInvite(type)});notice(out?.branded_email_sent===false?'Access was updated, but email delivery was not confirmed.':'Secure password setup / reset email sent.');};
  $('#sendPrimarySetup').onclick=async()=>{try{await resend(related[0].organization_id,roleOf(related[0]),orgMap.get(related[0].organization_id)?.type||'Employer')}catch(e){notice(e.message,true)}};
  document.querySelectorAll('.resendInvite').forEach(btn=>btn.onclick=async()=>{try{await resend(btn.dataset.org,btn.dataset.role,btn.dataset.type)}catch(e){notice(e.message,true)}});
- document.querySelectorAll('.ctpaAccessToggle').forEach(btn=>btn.onclick=async()=>{try{btn.disabled=true;await DOTApi.call('set_ctpa_user_access',{ctpa_id:btn.dataset.ctpa,user_id:btn.dataset.user,enabled:btn.dataset.next==='1'});notice(btn.dataset.next==='1'?'C/TPA user access granted.':'C/TPA user access revoked.');setTimeout(()=>location.reload(),500)}catch(e){btn.disabled=false;notice(e.message,true)}});
+ document.querySelectorAll('.ctpaAccessToggle').forEach(btn=>btn.onclick=async()=>{try{btn.disabled=true;await DOTApi.call('set_ctpa_user_access',{ctpa_id:btn.dataset.ctpa,user_id:btn.dataset.user,enabled:btn.dataset.next==='1'});notice(btn.dataset.next==='1'?'C/TPA user access granted.':'C/TPA user access revoked.');setTimeout(()=>window.DOTRouter?.refresh(),150)}catch(e){btn.disabled=false;notice(e.message,true)}});
 }
 
 async function start(){

@@ -13,7 +13,7 @@ function shell(state,title,copy,actions=''){
   DOTShell.render(state);
   $('#dotPageMount').innerHTML=`<section class="dot-page record-management-page">
     <header class="dot-page-head"><div><span class="dot-eyebrow">DOT MANAGEMENT</span><h1>${esc(title)}</h1><p>${esc(copy)}</p></div><div class="dot-actions">${actions}</div></header>
-    <div id="recordStatus"></div><div id="recordBody"><div class="dot-card"><div class="dot-empty"><div class="dot-spinner"></div><p>Loading management workspace…</p></div></div></div>
+    <div id="recordStatus"></div><div id="recordBody"><div class="dot-card"><div class="dot-empty"><div class="dot-instant-placeholder" aria-hidden="true"></div></div></div></div>
   </section>`;
 }
 function notice(msg,error=false){
