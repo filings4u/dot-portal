@@ -1,0 +1,12 @@
+.user-detail-page .dot-account-hero{margin-bottom:14px}
+.user-detail-page .dot-account-hero .dot-inline-actions{justify-content:flex-end;align-items:center}
+.user-detail-page .dot-metrics{margin-bottom:2px}
+.user-detail-page .dot-detail-item{min-height:82px}
+.user-detail-page .dot-detail-item strong{font-size:13px}
+.user-detail-page .dot-table td strong{display:block;color:var(--dot-navy)}
+.user-detail-page .dot-table td small{display:block;margin-top:4px;color:var(--dot-muted);font-size:10px}
+.user-row-actions{display:flex;flex-wrap:wrap;gap:6px;min-width:220px}
+.user-invite-card .dot-card-body{padding-top:18px}
+.user-invite-card .dot-actions{margin-top:16px}
+.user-detail-page #add-access{padding-bottom:20px}
+@media(max-width:900px){.user-detail-page .dot-account-hero .dot-inline-actions{justify-content:flex-start}.user-row-actions{min-width:0}.user-detail-page .dot-table{min-width:760px}}
