@@ -1,0 +1,184 @@
+/* DOT Support & Communications — page-specific layout */
+.support-management-page{max-width:none}
+.support-management-page .dot-page-head{margin-bottom:18px}
+.support-management-page .dot-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 16px}
+.support-management-page .dot-metric{min-width:0}
+.support-tabbar{display:inline-flex;align-items:center;gap:6px;margin:0 0 16px;padding:5px;border:1px solid var(--dot-line);border-radius:10px;background:#fff;box-shadow:0 1px 2px rgba(15,47,85,.03)}
+.support-tabbar button{appearance:none;border:0;border-radius:7px;background:transparent;padding:10px 16px;font:inherit;font-size:11px;font-weight:800;color:var(--dot-muted);cursor:pointer;transition:.15s ease}
+.support-tabbar button:hover{background:#f4f7fb;color:var(--dot-navy)}
+.support-tabbar button.active{background:#102f55;color:#fff;box-shadow:0 1px 3px rgba(16,47,85,.18)}
+#supportWorkspace{min-width:0}
+
+/* Inbox */
+.support-inbox-grid{display:grid;grid-template-columns:minmax(360px,430px) minmax(0,1fr);gap:16px;align-items:start}
+.support-list-card,.support-thread-card{min-width:0;overflow:hidden}
+.support-list-card{position:sticky;top:82px}
+.support-ticket-tools{display:grid;grid-template-columns:minmax(0,1fr) 145px 135px;gap:9px;padding:12px 14px;border-bottom:1px solid var(--dot-line);background:#fbfcfe}
+.support-ticket-tools input,.support-ticket-tools select,.support-recipient-tools input,.support-recipient-tools select{width:100%;height:38px;border:1px solid #c9d6e4;border-radius:8px;background:#fff;padding:0 11px;font:inherit;font-size:11px;color:var(--dot-navy);outline:none}
+.support-ticket-tools input:focus,.support-ticket-tools select:focus,.support-recipient-tools input:focus,.support-recipient-tools select:focus{border-color:#7ca6d6;box-shadow:0 0 0 3px rgba(36,91,158,.09)}
+.support-ticket-list{max-height:650px;overflow:auto;padding:8px;background:#fff}
+.support-ticket-row{display:block;width:100%;text-align:left;border:1px solid transparent;border-radius:9px;background:#fff;padding:12px;margin:0 0 7px;cursor:pointer;color:var(--dot-navy);transition:.15s ease}
+.support-ticket-row:hover{background:#f8fbff;border-color:#d9e5f2}
+.support-ticket-row.active{background:#eef5ff;border-color:#9ebce0;box-shadow:inset 3px 0 0 #f97300}
+.support-ticket-row-top,.support-ticket-row-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.support-ticket-row-top strong{font-size:10px;letter-spacing:.01em}
+.support-ticket-subject{font-size:13px;font-weight:800;line-height:1.35;margin:8px 0}
+.support-ticket-meta{display:flex;flex-wrap:wrap;gap:6px 12px;color:var(--dot-muted);font-size:9px;line-height:1.4}
+.support-ticket-row-foot{margin-top:10px}
+.support-ticket-row-foot>span:last-child{font-size:9px;color:var(--dot-muted);text-transform:capitalize}
+.support-thread-card .dot-card-body{padding:18px}
+.support-select-ticket{padding:90px 24px;text-align:center;color:var(--dot-muted)}
+.support-thread-head{display:flex;justify-content:space-between;gap:18px;padding-bottom:16px;border-bottom:1px solid var(--dot-line)}
+.support-thread-head>div:first-child{min-width:0}.support-thread-head h2{font-size:18px;line-height:1.25;margin:3px 0}.support-thread-head p{margin:0;color:var(--dot-muted);font-size:10px;overflow-wrap:anywhere}
+.support-thread-badges{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.support-ticket-profile{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}
+.support-ticket-profile>div,.support-diagnostic-grid>div{padding:11px;border:1px solid var(--dot-line);border-radius:8px;background:#f9fbfd;min-width:0}
+.support-ticket-profile span,.support-diagnostic-grid span{display:block;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--dot-muted);margin-bottom:4px}
+.support-ticket-profile strong{display:block;font-size:10px;overflow-wrap:anywhere}.support-ticket-profile small{display:block;font-size:8px;color:var(--dot-muted);margin-top:3px;overflow-wrap:anywhere}
+.support-diagnostic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 14px}.support-diagnostic-grid .full{grid-column:1/-1}
+.support-diagnostic-grid a{font-size:10px;font-weight:800;color:#245b9e;overflow-wrap:anywhere}.support-diagnostic-grid code{display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:9px;line-height:1.5;color:#8a251d}
+.support-thread-messages{max-height:390px;overflow:auto;border:1px solid var(--dot-line);border-radius:9px;padding:10px;background:#f7f9fc}
+.support-message{padding:11px 12px;border:1px solid var(--dot-line);border-radius:9px;background:#fff;margin:0 0 8px;font-size:10px;line-height:1.55;white-space:pre-wrap}.support-message.staff{margin-left:28px;background:#eef5ff}.support-message.customer{margin-right:28px}.support-message.internal{background:#fff8e8;border-style:dashed}
+.support-message-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:5px}.support-message-head small{font-size:8px;color:var(--dot-muted)}
+.support-compose{margin-top:14px;padding-top:14px;border-top:1px solid var(--dot-line)}
+.support-compose textarea,.support-broadcast-form input,.support-broadcast-form textarea{width:100%;border:1px solid #c9d6e4;border-radius:8px;background:#fff;padding:10px 11px;font:inherit;font-size:11px;color:var(--dot-navy);outline:none}
+.support-compose textarea:focus,.support-broadcast-form input:focus,.support-broadcast-form textarea:focus{border-color:#7ca6d6;box-shadow:0 0 0 3px rgba(36,91,158,.09)}
+.support-compose-options{display:grid;grid-template-columns:1.3fr .85fr .75fr;gap:9px;align-items:end}
+.support-toggle{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--dot-line);border-radius:8px;background:#fff;cursor:pointer;min-height:58px}
+.support-toggle input{margin-top:2px}.support-toggle strong,.support-toggle small{display:block}.support-toggle strong{font-size:10px}.support-toggle small{font-size:8px;color:var(--dot-muted);line-height:1.45;margin-top:2px}.support-compose-actions{justify-content:flex-end;margin-top:10px}.support-email-note{font-size:8px;color:var(--dot-muted);text-align:right;margin:7px 0 0}
+
+/* Mass notifications */
+.support-broadcast-grid{display:grid;gap:16px}
+.support-broadcast-compose .dot-card-body{padding:16px 18px 18px}
+.support-audience-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.support-audience-card{border:1px solid var(--dot-line);border-radius:10px;padding:14px;background:#f9fbfd;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 12px;min-width:0}
+.support-audience-card h3{font-size:14px;margin:3px 0 2px}.support-audience-card p{font-size:9px;color:var(--dot-muted);line-height:1.45;margin:0}.support-audience-card>strong{font-size:24px;line-height:1;color:var(--dot-navy);align-self:start}.support-audience-actions{grid-column:1/-1;display:flex;gap:7px;flex-wrap:wrap}.support-audience-card>small{grid-column:1/-1;color:var(--dot-muted);font-size:8px}
+.support-recipient-tools{display:grid;grid-template-columns:minmax(0,1fr) 190px auto;gap:9px;padding:0 0 10px;border:0;align-items:center}.support-recipient-tools .dot-btn{height:38px;white-space:nowrap}
+.support-recipient-list{border:1px solid var(--dot-line);border-radius:9px;max-height:340px;overflow:auto;margin-bottom:16px;background:#fff}
+.support-recipient-row{display:grid;grid-template-columns:20px minmax(0,1fr) 145px 76px;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--dot-line-soft);cursor:pointer;min-width:0}.support-recipient-row:last-child{border-bottom:0}.support-recipient-row:hover{background:#f8fbff}.support-recipient-row input{width:14px;height:14px;margin:0}.support-recipient-main{min-width:0}.support-recipient-main strong,.support-recipient-main small{display:block;overflow-wrap:anywhere}.support-recipient-main strong{font-size:10px;line-height:1.35}.support-recipient-main small{font-size:8px;color:var(--dot-muted);margin-top:3px}.support-recipient-row>span:nth-child(3){font-size:8px;color:var(--dot-muted);overflow-wrap:anywhere}
+.support-broadcast-form{border-top:1px solid var(--dot-line);padding-top:16px}.support-broadcast-form .dot-field{margin:0 0 12px}.support-broadcast-form .dot-field label{display:block;margin:0 0 6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--dot-navy)}
+.support-channel-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:12px}.support-broadcast-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--dot-line)}.support-broadcast-footer div{font-size:10px;color:var(--dot-muted)}.support-broadcast-footer strong{font-size:18px;color:var(--dot-navy);margin-right:4px}
+
+@media(max-width:1280px){.support-inbox-grid{grid-template-columns:minmax(330px,390px) minmax(0,1fr)}.support-ticket-tools{grid-template-columns:1fr 1fr}.support-ticket-tools input{grid-column:1/-1}.support-compose-options{grid-template-columns:1fr 1fr}.support-compose-options .support-toggle{grid-column:1/-1}.support-audience-groups{grid-template-columns:1fr 1fr}.support-audience-groups .support-audience-card:last-child{grid-column:1/-1}}
+@media(max-width:1050px){.support-inbox-grid{grid-template-columns:1fr}.support-list-card{position:static}.support-audience-groups{grid-template-columns:1fr}.support-audience-groups .support-audience-card:last-child{grid-column:auto}.support-management-page .dot-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.support-management-page .dot-metrics{grid-template-columns:1fr}.support-tabbar{display:flex;width:100%}.support-tabbar button{flex:1}.support-ticket-tools,.support-recipient-tools{grid-template-columns:1fr}.support-ticket-tools input{grid-column:auto}.support-ticket-profile,.support-diagnostic-grid,.support-channel-picker{grid-template-columns:1fr}.support-diagnostic-grid .full{grid-column:auto}.support-compose-options{grid-template-columns:1fr}.support-recipient-row{grid-template-columns:20px minmax(0,1fr)}.support-recipient-row>span:nth-child(3),.support-recipient-row>span:nth-child(4){display:none}.support-thread-head{flex-direction:column}.support-thread-badges{justify-content:flex-start}.support-message.staff,.support-message.customer{margin-left:0;margin-right:0}.support-broadcast-footer{align-items:flex-start;flex-direction:column}}
+
+/* Final support layout corrections — scoped and intentionally stronger than global portal rules */
+.support-management-page,
+.support-management-page *{box-sizing:border-box}
+.support-management-page{width:100%!important;max-width:100%!important;min-width:0!important}
+.support-management-page #supportWorkspace{width:100%!important;min-width:0!important;display:block!important}
+
+/* Shared form-control normalization */
+.support-management-page input[type="text"],
+.support-management-page input[type="search"],
+.support-management-page input[type="email"],
+.support-management-page input[type="tel"],
+.support-management-page select,
+.support-management-page textarea{
+  appearance:none;-webkit-appearance:none;
+  width:100%!important;min-width:0!important;
+  border:1px solid #cbd8e6!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  color:#102f55!important;
+  font-family:Inter,Arial,sans-serif!important;
+  font-size:11px!important;
+  line-height:1.35!important;
+  box-shadow:none!important;
+  outline:none!important;
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease!important;
+}
+.support-management-page input[type="text"],
+.support-management-page input[type="search"],
+.support-management-page input[type="email"],
+.support-management-page input[type="tel"],
+.support-management-page select{height:42px!important;padding:0 12px!important}
+.support-management-page textarea{padding:11px 12px!important;resize:vertical!important}
+.support-management-page select{
+  padding-right:36px!important;
+  background-image:linear-gradient(45deg,transparent 50%,#536b86 50%),linear-gradient(135deg,#536b86 50%,transparent 50%)!important;
+  background-position:calc(100% - 17px) 18px,calc(100% - 12px) 18px!important;
+  background-size:5px 5px,5px 5px!important;
+  background-repeat:no-repeat!important;
+}
+.support-management-page input:focus,
+.support-management-page select:focus,
+.support-management-page textarea:focus{border-color:#7aa4d2!important;box-shadow:0 0 0 3px rgba(36,91,158,.10)!important}
+.support-management-page input[type="checkbox"]{appearance:auto!important;-webkit-appearance:checkbox!important;width:15px!important;height:15px!important;min-height:0!important;padding:0!important;margin:0!important;accent-color:#245b9e!important}
+
+/* Top tabs */
+.support-management-page .support-tabbar{display:inline-grid!important;grid-template-columns:auto auto!important;align-items:center!important;gap:4px!important;padding:4px!important;margin:0 0 16px!important;width:auto!important;max-width:100%!important;background:#fff!important;border:1px solid #d6e0eb!important;border-radius:10px!important}
+.support-management-page .support-tabbar button{min-height:36px!important;padding:0 16px!important;border:0!important;border-radius:7px!important;background:transparent!important;color:#5f7188!important;font:800 11px/1 Inter,Arial,sans-serif!important}
+.support-management-page .support-tabbar button.active{background:#102f55!important;color:#fff!important;box-shadow:none!important}
+
+/* Support inbox: fixed two-column desktop workspace */
+.support-management-page .support-inbox-grid{
+  display:grid!important;
+  grid-template-columns:minmax(390px,42%) minmax(0,58%)!important;
+  gap:16px!important;
+  width:100%!important;
+  min-width:0!important;
+  align-items:start!important;
+}
+.support-management-page .support-list-card,
+.support-management-page .support-thread-card{width:auto!important;min-width:0!important;max-width:none!important;margin:0!important;overflow:hidden!important}
+.support-management-page .support-list-card{position:static!important}
+.support-management-page .support-ticket-tools{
+  display:grid!important;grid-template-columns:minmax(0,1fr) 150px 145px!important;gap:9px!important;
+  padding:12px 14px!important;background:#f8fafc!important;border-bottom:1px solid #dce4ed!important
+}
+.support-management-page .support-ticket-list{padding:8px!important;max-height:650px!important;overflow:auto!important;background:#fff!important}
+.support-management-page .support-ticket-row{border:1px solid #e3e9f0!important;border-radius:9px!important;padding:12px!important;margin:0 0 8px!important;background:#fff!important}
+.support-management-page .support-ticket-row:hover{background:#f8fbff!important;border-color:#cbdced!important}
+.support-management-page .support-ticket-row.active{background:#eef5ff!important;border-color:#9fbfe2!important;box-shadow:inset 3px 0 0 #f97300!important}
+.support-management-page .support-thread-card>.dot-card-body{padding:18px!important}
+.support-management-page .support-select-ticket{min-height:420px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:40px!important}
+.support-management-page .support-thread-head{align-items:flex-start!important}
+
+/* Mass notification workspace */
+.support-management-page .support-broadcast-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:16px!important;width:100%!important}
+.support-management-page .support-broadcast-compose{overflow:hidden!important}
+.support-management-page .support-broadcast-compose>.dot-card-body{padding:16px 18px 18px!important}
+.support-management-page .support-audience-groups{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin-bottom:16px!important}
+.support-management-page .support-audience-card{min-height:132px!important;padding:14px!important;border:1px solid #d7e1ec!important;border-radius:10px!important;background:#f8fafc!important;box-shadow:none!important}
+.support-management-page .support-audience-card>strong{font-size:25px!important;line-height:1!important}
+.support-management-page .support-audience-actions{display:flex!important;gap:7px!important;align-items:center!important;flex-wrap:wrap!important}
+.support-management-page .support-audience-actions .dot-btn{min-height:34px!important;padding:0 11px!important}
+.support-management-page .support-recipient-tools{
+  display:grid!important;grid-template-columns:minmax(0,1fr) 210px 96px!important;gap:9px!important;
+  align-items:center!important;padding:0 0 11px!important;border:0!important;background:transparent!important
+}
+.support-management-page .support-recipient-tools .dot-btn{height:42px!important;min-height:42px!important;padding:0 13px!important}
+.support-management-page .support-recipient-list{margin:0 0 16px!important;max-height:330px!important;border:1px solid #d7e1ec!important;border-radius:9px!important;background:#fff!important;overflow:auto!important}
+.support-management-page .support-recipient-row{display:grid!important;grid-template-columns:18px minmax(0,1fr) 150px 78px!important;gap:11px!important;align-items:center!important;min-height:48px!important;padding:9px 12px!important;border-bottom:1px solid #edf1f5!important}
+.support-management-page .support-recipient-row:hover{background:#f8fbff!important}
+.support-management-page .support-broadcast-form{padding-top:16px!important;border-top:1px solid #dce4ed!important}
+.support-management-page .support-channel-picker{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-bottom:14px!important}
+.support-management-page .support-toggle{display:flex!important;align-items:flex-start!important;gap:10px!important;min-height:68px!important;padding:12px!important;border:1px solid #d7e1ec!important;border-radius:9px!important;background:#fff!important}
+.support-management-page .support-toggle input[type="checkbox"]{margin-top:2px!important;flex:0 0 15px!important}
+.support-management-page .support-broadcast-form .dot-field{margin:0 0 13px!important}
+.support-management-page .support-broadcast-form .dot-field label{display:block!important;margin:0 0 6px!important;font-size:9px!important;font-weight:900!important;letter-spacing:.045em!important;text-transform:uppercase!important;color:#36516f!important}
+.support-management-page #broadcastBody{min-height:150px!important}
+.support-management-page .support-broadcast-footer{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;padding-top:13px!important;margin-top:8px!important;border-top:1px solid #e3e9f0!important}
+.support-management-page .support-broadcast-footer .dot-btn{min-height:40px!important}
+.support-management-page .dot-table-wrap{width:100%!important;overflow-x:auto!important}
+.support-management-page .dot-table{width:100%!important;min-width:760px!important}
+
+@media(max-width:1220px){
+  .support-management-page .support-inbox-grid{grid-template-columns:minmax(340px,40%) minmax(0,60%)!important}
+  .support-management-page .support-ticket-tools{grid-template-columns:1fr 1fr!important}.support-management-page .support-ticket-tools input{grid-column:1/-1!important}
+  .support-management-page .support-audience-groups{grid-template-columns:1fr 1fr!important}.support-management-page .support-audience-card:last-child{grid-column:1/-1!important}
+}
+@media(max-width:980px){
+  .support-management-page .support-inbox-grid{grid-template-columns:1fr!important}
+  .support-management-page .support-audience-groups{grid-template-columns:1fr!important}.support-management-page .support-audience-card:last-child{grid-column:auto!important}
+  .support-management-page .support-recipient-tools{grid-template-columns:1fr 190px!important}.support-management-page #clearAllRecipients{grid-column:1/-1!important;justify-self:end!important;width:auto!important}
+}
+@media(max-width:680px){
+  .support-management-page .support-tabbar{display:grid!important;grid-template-columns:1fr 1fr!important;width:100%!important}
+  .support-management-page .support-ticket-tools,.support-management-page .support-recipient-tools{grid-template-columns:1fr!important}.support-management-page .support-ticket-tools input,.support-management-page #clearAllRecipients{grid-column:auto!important;width:100%!important}
+  .support-management-page .support-channel-picker{grid-template-columns:1fr!important}
+  .support-management-page .support-recipient-row{grid-template-columns:18px minmax(0,1fr)!important}.support-management-page .support-recipient-row>span:nth-child(3),.support-management-page .support-recipient-row>span:nth-child(4){display:none!important}
+  .support-management-page .support-broadcast-footer{align-items:stretch!important;flex-direction:column!important}.support-management-page .support-broadcast-footer .dot-btn{width:100%!important}
+}
