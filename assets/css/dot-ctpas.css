@@ -1,0 +1,22 @@
+/* C/TPA management directory v2 */
+.ctpa-directory-page .dot-page-head{margin-bottom:18px}
+.ctpa-directory-page .dot-metrics{margin-bottom:16px}
+.ctpa-workspace-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.ctpa-workspace-card{display:flex;gap:11px;align-items:flex-start;padding:14px;border:1px solid var(--dot-line);border-radius:10px;background:#fff;text-decoration:none;transition:.15s ease}
+.ctpa-workspace-card:hover{border-color:#b8c9dd;box-shadow:0 7px 18px rgba(16,47,85,.06);transform:translateY(-1px)}
+.ctpa-workspace-card>span{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:8px;background:#edf4fc;color:var(--dot-blue);font-weight:900}
+.ctpa-workspace-card strong{display:block;color:var(--dot-navy);font-size:11px}
+.ctpa-workspace-card small{display:block;margin-top:4px;color:var(--dot-muted);font-size:9px;line-height:1.45}
+.ctpa-count{display:inline-flex;align-items:center;min-height:31px;padding:0 10px;border:1px solid var(--dot-line);border-radius:999px;background:#f8fafc;color:var(--dot-muted);font-size:9px;font-weight:800}
+.ctpa-tools{border-bottom:1px solid var(--dot-line-soft);background:#fbfcfe}
+.ctpa-filters{display:grid;grid-template-columns:minmax(260px,1.35fr) 170px 170px 160px auto;gap:9px;align-items:end}
+.ctpa-table td{vertical-align:middle}
+.ctpa-table td strong{color:var(--dot-navy)}
+.ctpa-table td:first-child>strong,.ctpa-table td:nth-child(2)>strong,.ctpa-table td:nth-child(3)>strong{display:block;font-size:11px}
+.ctpa-table td small{display:block;margin-top:4px;color:var(--dot-muted);font-size:8.5px;line-height:1.4;overflow-wrap:anywhere}
+.ctpa-row-actions{display:flex;gap:6px;flex-wrap:wrap}
+.ctpa-duplicate-pill,.ctpa-single-record{display:inline-flex;align-items:center;min-height:25px;padding:0 8px;border-radius:999px;font-size:8px;font-weight:900;white-space:nowrap}
+.ctpa-duplicate-pill{background:#fff2dd;color:#995d00;border:1px solid #f4d39a}
+.ctpa-single-record{background:#f2f6fa;color:#6b7d92;border:1px solid #dce5ee}
+@media(max-width:1180px){.ctpa-workspace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ctpa-filters{grid-template-columns:1fr 1fr}.ctpa-filters .dot-field:first-child{grid-column:1/-1}}
+@media(max-width:720px){.ctpa-directory-page .dot-page-head .dot-actions{width:100%}.ctpa-directory-page .dot-page-head .dot-actions .dot-btn{flex:1 1 auto}.ctpa-workspace-grid{grid-template-columns:1fr}.ctpa-filters{grid-template-columns:1fr}.ctpa-filters .dot-field:first-child{grid-column:auto}.ctpa-filters>.dot-btn{width:100%}.ctpa-table{min-width:1020px}}

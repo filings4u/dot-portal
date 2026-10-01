@@ -1,0 +1,16 @@
+/* DOT Employers — unified employer directory */
+.employer-directory-page .dot-page-head{margin-bottom:18px}
+.employer-directory-page .dot-metrics{margin-bottom:18px}
+.employer-count{display:inline-flex;align-items:center;min-height:31px;padding:0 10px;border:1px solid var(--dot-line);border-radius:999px;background:#f8fafc;color:var(--dot-muted);font-size:9px;font-weight:800;white-space:nowrap}
+.employer-toolbar{background:#fbfcfe;border-bottom:1px solid var(--dot-line-soft)}
+.employer-filter-grid{display:grid;grid-template-columns:minmax(280px,1.35fr) 180px 150px 150px auto;gap:9px;align-items:end}
+.employer-table td{vertical-align:middle}
+.employer-table td>strong{display:block;color:var(--dot-navy);font-size:11px}
+.employer-table td>small{display:block;margin-top:4px;color:var(--dot-muted);font-size:8.5px;line-height:1.4;overflow-wrap:anywhere}
+.employer-type{display:inline-flex;align-items:center;min-height:25px;padding:0 8px;border-radius:999px;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.employer-type.ctpa{background:#edf4ff;color:#245b9e;border:1px solid #cbdcf1}
+.employer-type.direct{background:#eaf7f0;color:#137a4b;border:1px solid #c9e8d8}
+.employer-type.admin{background:#fff2dd;color:#995d00;border:1px solid #f1d49c}
+.employer-actions{display:flex;gap:6px;flex-wrap:wrap}
+@media(max-width:1180px){.employer-filter-grid{grid-template-columns:1fr 1fr}.employer-filter-grid .dot-field:first-child{grid-column:1/-1}}
+@media(max-width:720px){.employer-directory-page .dot-page-head .dot-actions{width:100%}.employer-directory-page .dot-page-head .dot-actions .dot-btn{flex:1 1 auto}.employer-filter-grid{grid-template-columns:1fr}.employer-filter-grid .dot-field:first-child{grid-column:auto}.employer-filter-grid>.dot-btn{width:100%}.employer-table{min-width:1180px}}

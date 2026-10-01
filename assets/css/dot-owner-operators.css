@@ -1,0 +1,24 @@
+/* Owner-Operator management directory */
+.owner-directory-page .dot-page-head{margin-bottom:18px}
+.owner-directory-page .dot-metrics{margin-bottom:16px}
+.owner-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.owner-quick-card{display:flex;gap:11px;align-items:flex-start;padding:14px;border:1px solid var(--dot-line);border-radius:10px;background:#fff;text-decoration:none;transition:.15s ease}
+.owner-quick-card:hover{border-color:#b7c8dd;box-shadow:0 7px 18px rgba(16,47,85,.06);transform:translateY(-1px)}
+.owner-quick-card>span{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:8px;background:#edf4fc;color:var(--dot-blue);font-weight:900}
+.owner-quick-card strong{display:block;color:var(--dot-navy);font-size:11px}
+.owner-quick-card small{display:block;margin-top:4px;color:var(--dot-muted);font-size:9px;line-height:1.45}
+.owner-count{display:inline-flex;align-items:center;min-height:31px;padding:0 10px;border:1px solid var(--dot-line);border-radius:999px;background:#f8fafc;color:var(--dot-muted);font-size:9px;font-weight:800;white-space:nowrap}
+.owner-toolbar{background:#fbfcfe;border-bottom:1px solid var(--dot-line-soft)}
+.owner-filter-grid{display:grid;grid-template-columns:minmax(260px,1.35fr) 170px 180px 140px 150px auto;gap:9px;align-items:end}
+.owner-table td{vertical-align:middle}
+.owner-table td>strong{display:block;color:var(--dot-navy);font-size:11px}
+.owner-table td>small{display:block;margin-top:4px;color:var(--dot-muted);font-size:8.5px;line-height:1.4;overflow-wrap:anywhere}
+.owner-type{display:inline-flex;align-items:center;min-height:25px;padding:0 8px;border-radius:999px;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.owner-type.ctpa{background:#edf4ff;color:#245b9e;border:1px solid #cbdcf1}
+.owner-type.direct{background:#eaf7f0;color:#137a4b;border:1px solid #c9e8d8}
+.owner-duplicate,.owner-single{display:inline-flex;align-items:center;min-height:25px;padding:0 8px;border-radius:999px;font-size:8px;font-weight:900;white-space:nowrap}
+.owner-duplicate{background:#fff2dd;color:#995d00;border:1px solid #f1d49c}
+.owner-single{background:#f2f6fa;color:#6b7d92;border:1px solid #dce5ee}
+.owner-actions{display:flex;gap:6px;flex-wrap:wrap}
+@media(max-width:1250px){.owner-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-filter-grid{grid-template-columns:1fr 1fr 1fr}.owner-filter-grid .dot-field:first-child{grid-column:1/-1}}
+@media(max-width:720px){.owner-directory-page .dot-page-head .dot-actions{width:100%}.owner-directory-page .dot-page-head .dot-actions .dot-btn{flex:1 1 auto}.owner-quick-grid{grid-template-columns:1fr}.owner-filter-grid{grid-template-columns:1fr}.owner-filter-grid .dot-field:first-child{grid-column:auto}.owner-filter-grid>.dot-btn{width:100%}.owner-table{min-width:1180px}}
