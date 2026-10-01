@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" class="dot-auth-pending">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102f55">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Invoice Payment | screenings4u DOT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/dot-global-checkout.css?v=1">
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <main class="checkout-shell">
+    <header class="checkout-topbar">
+      <div class="checkout-brand"><img src="images/logo2.png" alt="screenings4u"><div><small>DOT MANAGEMENT</small><strong>Secure Invoice Payment</strong></div></div>
+      <a class="checkout-back" id="backInvoice" href="dot-invoices.html">Back to Invoice</a>
+    </header>
+    <section class="checkout-intro">
+      <span>SECURE STRIPE CHECKOUT</span>
+      <h1 id="checkoutTitle">Loading invoice…</h1>
+      <p>Use this screen to securely take payment over the phone. Card details are entered directly into Stripe's secure payment element and are not stored by screenings4u.</p>
+    </section>
+    <div id="checkoutNotice" class="checkout-notice" hidden></div>
+    <section class="checkout-grid">
+      <div>
+        <article class="checkout-card">
+          <h2>Invoice</h2>
+          <div id="invoiceDetails" class="detail-grid"><div class="skeleton">Loading invoice…</div></div>
+        </article>
+        <article class="checkout-card">
+          <h2>Line Items</h2>
+          <div id="lineItems" class="line-items"><div class="skeleton">Loading items…</div></div>
+        </article>
+        <article class="checkout-card">
+          <h2>Payment</h2>
+          <div id="paymentHost"><p class="muted">The secure payment form will appear after the invoice is verified.</p></div>
+          <div id="paymentError" class="payment-error"></div>
+        </article>
+      </div>
+      <aside>
+        <article class="checkout-card summary-card">
+          <h2>Payment Summary</h2>
+          <div class="sumrow"><span>Invoice</span><strong id="sumInvoice">—</strong></div>
+          <div class="sumrow"><span>Customer</span><strong id="sumCustomer">—</strong></div>
+          <div class="sumrow"><span>Status</span><strong id="sumStatus">—</strong></div>
+          <div class="sumrow total"><span>Balance Due</span><strong id="sumTotal">$0.00</strong></div>
+          <button id="preparePayment" class="checkout-pay" disabled style="display:none">Loading Payment</button>
+          <p class="secure-note">Payments are processed securely by Stripe. screenings4u does not store full card numbers.</p>
+        </article>
+      </aside>
+    </section>
+  </main>
+  <script src="assets/js/dot-config.js?v=12"></script>
+  <script src="assets/js/dot-auth.js"></script>
+  <script src="assets/js/dot-api.js?v=7"></script>
+  <script src="assets/js/dot-global-checkout.js?v=2"></script>
+</body>
+</html>
