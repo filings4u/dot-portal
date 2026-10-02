@@ -864,3 +864,56 @@ body.dot-modal-open{overflow:hidden}
 
 @media(max-width:1100px){.dot-order-layout{grid-template-columns:1fr}.dot-order-sidebar{position:static}.dot-order-sidebar .dot-order-summary-card{position:static}.dot-order-result .dot-banner{align-items:flex-start}.recent-orders-card .dot-filter-row{grid-template-columns:1fr}}
 @media(max-width:680px){.dot-order-result .dot-banner{flex-direction:column}.dot-order-success .dot-btn{width:100%;justify-content:center}.recent-order-actions{min-width:220px}.dot-brand-modal{padding:10px}.dot-brand-modal-dialog{width:100%;max-height:94vh;border-radius:12px}.dot-brand-modal-head{padding:15px}.dot-brand-modal-body{padding:16px}.dot-brand-modal-actions{padding:12px 15px;flex-wrap:wrap}.dot-brand-modal-actions .dot-btn{flex:1 1 auto}.order-detail-grid{grid-template-columns:1fr}}
+
+
+/* Order creation confirmation — full-width management banner */
+.dot-order-main #orderResult.dot-order-result{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  justify-self:stretch!important;
+  align-self:stretch!important;
+  grid-column:1 / -1!important;
+}
+.dot-order-main #orderResult.dot-order-result:empty{display:none!important}
+.dot-order-main #orderResult .dot-order-success{
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:none!important;
+  min-height:92px;
+  margin:0!important;
+  padding:18px 20px!important;
+  border:1px solid #b8d2ee!important;
+  border-left:5px solid var(--dot-orange)!important;
+  border-radius:12px!important;
+  background:linear-gradient(135deg,#f8fbff 0%,#eef6ff 100%)!important;
+  box-shadow:0 10px 24px rgba(23,63,117,.06);
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:18px!important;
+}
+.dot-order-main #orderResult .dot-order-success>div{min-width:0;flex:1 1 auto}
+.dot-order-main #orderResult .dot-order-success strong{
+  color:var(--dot-navy);
+  font-size:16px;
+  line-height:1.25;
+}
+.dot-order-main #orderResult .dot-order-success span{
+  margin-top:6px;
+  max-width:760px;
+  color:var(--dot-text);
+  font-size:12px;
+  line-height:1.55;
+  opacity:1;
+}
+.dot-order-main #orderResult .dot-order-success .dot-btn{
+  flex:0 0 auto!important;
+  min-width:168px;
+  justify-content:center;
+}
+@media(max-width:680px){
+  .dot-order-main #orderResult .dot-order-success{padding:16px!important;align-items:stretch!important;flex-direction:column!important}
+  .dot-order-main #orderResult .dot-order-success .dot-btn{width:100%!important;min-width:0}
+}
