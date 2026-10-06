@@ -917,3 +917,33 @@ body.dot-modal-open{overflow:hidden}
   .dot-order-main #orderResult .dot-order-success{padding:16px!important;align-items:stretch!important;flex-direction:column!important}
   .dot-order-main #orderResult .dot-order-success .dot-btn{width:100%!important;min-width:0}
 }
+
+/* Landscape consortium certificate */
+.document-preview-paper.landscape-certificate{width:1056px;max-width:none;min-height:816px;height:816px;padding:36px 44px}
+.pdf-render-paper.landscape-certificate{width:1056px;min-height:816px;height:816px;padding:36px 44px}
+.landscape-certificate .certificate-preview-brand{margin-bottom:18px}
+.certificate-preview-brand{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #24467f;padding-bottom:12px}
+.certificate-preview-brand img{width:190px;max-height:54px;object-fit:contain;object-position:left center}
+.certificate-preview-brand span{font-size:10px;font-weight:900;letter-spacing:.13em;color:#f47b20}
+.certificate-preview-content{min-height:0}
+.certificate-landscape{height:670px;border:8px double #24467f;padding:10px;background:linear-gradient(135deg,#fff 0%,#fbfcfe 55%,#f4f8fc 100%)}
+.certificate-inner{height:100%;border:1px solid #cfdae8;padding:28px 58px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.certificate-kicker{font-size:11px;letter-spacing:.22em;font-weight:900;color:#f47b20;margin-bottom:8px}
+.certificate-title{font-family:Georgia,'Times New Roman',serif;font-size:50px;line-height:1;color:#24467f;font-weight:700;letter-spacing:.06em}
+.certificate-subtitle{font-family:Georgia,'Times New Roman',serif;font-size:24px;color:#24467f;font-weight:700;letter-spacing:.19em;margin-top:8px}
+.certificate-rule{width:210px;height:3px;background:#f47b20;margin:18px auto 14px}
+.certificate-reg{margin:0;color:#64758a;font-size:14px}
+.certificate-program{margin:6px 0 18px;color:#26384d;font-size:16px;font-weight:800}
+.certificate-presented{margin:0 0 4px;font-family:Georgia,'Times New Roman',serif;font-style:italic;color:#6b7d91;font-size:15px}
+.certificate-company{font-family:Georgia,'Times New Roman',serif;font-size:34px;line-height:1.15;color:#173f75;font-weight:700;margin:2px 0 4px}
+.certificate-usdot{font-size:17px;color:#24467f;font-weight:800;margin-bottom:16px}
+.certificate-copy{max-width:760px;margin:0 auto 18px;line-height:1.6;color:#40536a;font-size:14px}
+.certificate-dates{display:flex;justify-content:center;gap:80px;margin:4px 0 20px}
+.certificate-dates div{min-width:180px;border-top:1px solid #aebed0;padding-top:7px}
+.certificate-dates span,.certificate-signature span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#7b8ca0}
+.certificate-dates strong{display:block;margin-top:3px;color:#173f75;font-size:14px}
+.certificate-signature{width:72%;display:flex;justify-content:space-between;gap:70px;margin-top:2px}
+.certificate-signature>div{flex:1;border-top:1px solid #7f93ab;padding-top:7px}
+.certificate-signature strong{display:block;color:#173f75;font-size:14px}
+.certificate-footerline{position:absolute;bottom:12px;left:0;right:0;font-size:9px;color:#8090a3;letter-spacing:.04em}
+@media(max-width:1100px){.document-preview-stage{overflow:auto}.document-preview-paper.landscape-certificate{transform-origin:top left}}
