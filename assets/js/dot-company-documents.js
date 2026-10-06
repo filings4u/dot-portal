@@ -1,7 +1,7 @@
 (()=>{'use strict';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],esc=v=>String(v??'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':'&quot;',"'":'&#39;'}[c]));
 const fmt=v=>{if(!v)return'—';const d=new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString()};
-const api=(action,extra={})=>DOTApi.invoke('dot-document-admin',{action,...extra});
+const api=(action,extra={},options={})=>DOTApi.invoke('dot-document-admin',{action,...extra},options);
 const logo='https://elpbnytpciqnbexiaebp.supabase.co/storage/v1/object/public/enterprise_branding/workforce-dot2.png';
 let data={company:null,documents:[]};
 
@@ -57,7 +57,7 @@ async function downloadDoc(id){
 }
 function render(){
  const c=data.company||{},docs=data.documents||[],sent=docs.filter(x=>x.direction==='sent').length,received=docs.filter(x=>x.direction==='received').length,onboarding=docs.filter(x=>x.onboarding_document).length;
- $('#companyDocMount').innerHTML=`<div class="company-document-summary"><div><span>Company</span><strong>${esc(c.company_name||'Company')}</strong><small>${c.dot_number?'USDOT #'+esc(c.dot_number):''}</small></div><div><span>Total Documents</span><strong>${docs.length}</strong></div><div><span>Sent by Workforce DOT</span><strong>${sent}</strong></div><div><span>Received / Onboarding</span><strong>${received+onboarding}</strong></div></div><div class="dot-card"><div class="dot-card-head"><div><h2>Complete Document File</h2><p>All documents for this company, including Workforce DOT documents, customer uploads, and onboarding records.</p></div></div><div class="dot-card-body"><div class="dot-filter-row company-document-detail-filters"><input id="detailSearch" placeholder="Search document or type"><select id="detailSource"><option value="">All documents</option><option value="sent">Sent by Workforce DOT</option><option value="received">Received from Company</option><option value="onboarding">Onboarding Documents</option></select></div></div><div class="dot-table-wrap"><table class="dot-table company-document-detail-table"><thead><tr><th>Document</th><th>Source</th><th>Type</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="companyDocumentRows"></tbody></table></div></div>`;
+ $('#companyDocMount').innerHTML=`<div class="company-document-summary"><div><span>Company</span><strong>${esc(c.company_name||'Company')}</strong><small>${c.dot_number?'USDOT #'+esc(c.dot_number):''}</small></div><div><span>Total Documents</span><strong>${docs.length}</strong></div><div><span>Sent by Workforce DOT</span><strong>${sent}</strong></div><div><span>Onboarding Documents</span><strong>${onboarding}</strong></div></div><div class="dot-card"><div class="dot-card-head"><div><h2>Complete Document File</h2><p>All documents for this company, including Workforce DOT documents, customer uploads, and onboarding records.</p></div></div><div class="dot-card-body"><div class="dot-filter-row company-document-detail-filters"><input id="detailSearch" placeholder="Search document or type"><select id="detailSource"><option value="">All documents</option><option value="sent">Sent by Workforce DOT</option><option value="received">Received from Company</option><option value="onboarding">Onboarding Documents</option></select></div></div><div class="dot-table-wrap"><table class="dot-table company-document-detail-table"><thead><tr><th>Document</th><th>Source</th><th>Type</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="companyDocumentRows"></tbody></table></div></div>`;
  const paint=()=>{
   const q=($('#detailSearch').value||'').toLowerCase(),src=$('#detailSource').value||'';
   const rows=docs.filter(d=>(!q||[d.title,d.file_name,d.document_type].join(' ').toLowerCase().includes(q))&&(!src||(src==='onboarding'?d.onboarding_document:d.direction===src&&!d.onboarding_document)));
@@ -71,7 +71,7 @@ async function start(){
  const q=new URLSearchParams(location.search),type=q.get('type')||'',id=q.get('id')||'';
  shell('Company Documents','Loading complete company document file…');
  if(!type||!id)return notice('A company was not selected.',true);
- try{data=await api('company_documents',{company_type:type,company_id:id});shell(data.company?.company_name||'Company Documents','View every DOT document associated with this company in one place.');render()}catch(e){notice(e.message||String(e),true)}
+ try{data=await api('company_documents',{company_type:type,company_id:id},{fresh:true,cache:true});shell(data.company?.company_name||'Company Documents','View every DOT document associated with this company in one place.');render()}catch(e){notice(e.message||String(e),true)}
 }
 addEventListener('DOMContentLoaded',start,{once:true});
 })();

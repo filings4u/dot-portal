@@ -1093,3 +1093,74 @@ body.dot-modal-open{overflow:hidden}
  .document-company-filter-row,.company-document-detail-filters{grid-template-columns:1fr}
 }
 @media(max-width:600px){.company-document-summary{grid-template-columns:1fr}}
+
+
+/* 2026-10-06 — Company Documents layout repair */
+.documents-admin-page .document-company-filter-row,
+.company-documents-page .company-document-detail-filters{
+  display:grid!important;
+  grid-template-columns:minmax(320px,1fr) 220px!important;
+  gap:12px!important;
+  align-items:center!important;
+  width:100%!important;
+}
+.documents-admin-page .document-company-filter-row input,
+.documents-admin-page .document-company-filter-row select,
+.company-documents-page .company-document-detail-filters input,
+.company-documents-page .company-document-detail-filters select{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  height:42px!important;
+  min-height:42px!important;
+  border:1px solid var(--dot-line)!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  color:var(--dot-navy)!important;
+  padding:0 12px!important;
+  font:inherit!important;
+  font-size:13px!important;
+  outline:none!important;
+}
+.documents-admin-page .document-company-filter-row input:focus,
+.documents-admin-page .document-company-filter-row select:focus,
+.company-documents-page .company-document-detail-filters input:focus,
+.company-documents-page .company-document-detail-filters select:focus{
+  border-color:#7b9ac0!important;
+  box-shadow:0 0 0 3px rgba(36,70,127,.08)!important;
+}
+.documents-admin-page .company-document-table{
+  width:100%!important;
+  min-width:0!important;
+  table-layout:fixed!important;
+}
+.documents-admin-page .company-document-table th,
+.documents-admin-page .company-document-table td{
+  padding:11px 14px!important;
+  vertical-align:middle!important;
+  font-size:12px!important;
+}
+.documents-admin-page .company-document-table th:nth-child(1){width:27%}
+.documents-admin-page .company-document-table th:nth-child(2){width:13%}
+.documents-admin-page .company-document-table th:nth-child(3){width:16%}
+.documents-admin-page .company-document-table th:nth-child(4){width:12%}
+.documents-admin-page .company-document-table th:nth-child(5){width:17%}
+.documents-admin-page .company-document-table th:nth-child(6){width:15%}
+.documents-admin-page .company-document-table td strong{display:block;color:var(--dot-navy);line-height:1.3}
+.documents-admin-page .company-document-table td small{display:block;margin-top:3px;color:var(--dot-muted);font-size:10px}
+.documents-admin-page .company-document-table .dot-btn.small{min-height:32px!important;height:32px!important;padding:0 10px!important;font-size:10px!important;white-space:nowrap!important}
+.company-documents-page .company-document-detail-table{width:100%!important;min-width:0!important;table-layout:fixed!important}
+.company-documents-page .company-document-detail-table th,
+.company-documents-page .company-document-detail-table td{padding:11px 12px!important;vertical-align:middle!important;font-size:12px!important}
+.company-documents-page .company-document-detail-table th:nth-child(1){width:30%}
+.company-documents-page .company-document-detail-table th:nth-child(2){width:18%}
+.company-documents-page .company-document-detail-table th:nth-child(3){width:18%}
+.company-documents-page .company-document-detail-table th:nth-child(4){width:11%}
+.company-documents-page .company-document-detail-table th:nth-child(5){width:10%}
+.company-documents-page .company-document-detail-table th:nth-child(6){width:13%}
+@media(max-width:900px){
+  .documents-admin-page .document-company-filter-row,
+  .company-documents-page .company-document-detail-filters{grid-template-columns:1fr!important}
+  .documents-admin-page .company-document-table,
+  .company-documents-page .company-document-detail-table{min-width:900px!important}
+}
