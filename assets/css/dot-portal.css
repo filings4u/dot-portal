@@ -1002,3 +1002,29 @@ body.dot-modal-open{overflow:hidden}
 .compliance-letter .letter-issued-box span{display:block;color:#66798e;font-size:11px;margin-top:2px}
 .compliance-letter .letter-verification-note{margin-top:16px;padding-top:12px;border-top:1px solid #dce5ef;font-size:10px;color:#6d7f92;letter-spacing:.03em}
 @media(max-width:700px){.compliance-letter .letter-title-row{flex-direction:column}.compliance-letter .letter-verification-grid{grid-template-columns:1fr}}
+
+/* Documents directory — dense admin table; keep related fields close together */
+.documents-admin-page .dot-table-wrap{overflow-x:auto!important}
+.documents-admin-page .document-table{table-layout:fixed!important;width:100%!important;min-width:960px!important;max-width:none!important}
+.documents-admin-page .document-table th,
+.documents-admin-page .document-table td{padding:6px 6px!important;line-height:1.15!important;vertical-align:middle!important}
+.documents-admin-page .document-table th:nth-child(1),
+.documents-admin-page .document-table td:nth-child(1){width:31%!important}
+.documents-admin-page .document-table th:nth-child(2),
+.documents-admin-page .document-table td:nth-child(2){width:17%!important;white-space:nowrap!important}
+.documents-admin-page .document-table th:nth-child(3),
+.documents-admin-page .document-table td:nth-child(3){width:11%!important}
+.documents-admin-page .document-table th:nth-child(4),
+.documents-admin-page .document-table td:nth-child(4){width:13%!important}
+.documents-admin-page .document-table th:nth-child(5),
+.documents-admin-page .document-table td:nth-child(5){width:8%!important;white-space:nowrap!important}
+.documents-admin-page .document-table th:nth-child(6),
+.documents-admin-page .document-table td:nth-child(6){width:8%!important;white-space:nowrap!important}
+.documents-admin-page .document-table th:nth-child(7),
+.documents-admin-page .document-table td:nth-child(7){width:12%!important}
+.documents-admin-page .document-table td:nth-child(1) strong,
+.documents-admin-page .document-table td:nth-child(3) strong,
+.documents-admin-page .document-table td:nth-child(4){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.documents-admin-page .document-table td:nth-child(3) small{white-space:nowrap!important}
+.documents-admin-page .document-actions{gap:3px!important;flex-wrap:nowrap!important;justify-content:flex-start!important}
+.documents-admin-page .document-actions .dot-btn.small{min-width:32px!important;height:26px!important;min-height:26px!important;padding:0 5px!important;font-size:9px!important}
