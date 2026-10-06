@@ -961,3 +961,5 @@ body.dot-modal-open{overflow:hidden}
 .certificate-tracking{display:flex;justify-content:center;align-items:baseline;gap:10px;margin:0 0 12px}
 .certificate-tracking span{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#7b8ca0}
 .certificate-tracking strong{font-size:14px;color:#173f75}
+
+.document-tracking-number{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;font-weight:800;letter-spacing:.02em;color:#173f75;white-space:nowrap}
