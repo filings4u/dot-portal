@@ -49,6 +49,10 @@ function render({employers,subs,plans,ctpas}){
     return {...emp,_sub:active,_plan:plan,_type:type,_ctpa:ctpa};
   });
 
+  const nameCounts=new Map();
+  rows.forEach(x=>{const k=norm(x.legal_name||x.dba_name);if(k)nameCounts.set(k,(nameCounts.get(k)||0)+1)});
+  const employerDisplayName=x=>{const base=x.legal_name||x.dba_name||'Employer',k=norm(base);return (nameCounts.get(k)||0)>1&&x.state?`${base} (${String(x.state).toUpperCase()})`:base};
+
   const activeCount=rows.filter(x=>norm(x.status)==='active').length;
   const ctpaCount=rows.filter(x=>x._type.key==='ctpa').length;
   const directCount=rows.filter(x=>x._type.key==='direct').length;
@@ -112,7 +116,7 @@ function render({employers,subs,plans,ctpas}){
     $('#employerTable').innerHTML=`<div class="dot-table-wrap"><table class="dot-table employer-table">
       <thead><tr><th>Employer</th><th>Type / Parent</th><th>Contact</th><th>USDOT / MC</th><th>Agency</th><th>Subscription</th><th>Status</th><th>Management</th></tr></thead>
       <tbody>${filtered.map(x=>`<tr>
-        <td><strong>${esc(x.legal_name||x.dba_name||'Employer')}</strong><small>${esc(x.id)}</small></td>
+        <td><strong>${esc(employerDisplayName(x))}</strong><small>${esc(x.id)}</small></td>
         <td><span class="employer-type ${esc(x._type.cls)}">${esc(x._type.label)}</span><small>${x._ctpa?esc(x._ctpa.legal_name||x._ctpa.support_email||x.ctpa_id):x._type.key==='ctpa'?esc(x.ctpa_id||'C/TPA'):'Independent account'}</small></td>
         <td><strong>${esc(x.primary_contact_email||'—')}</strong><small>${esc(x.phone||'')}</small></td>
         <td><strong>${esc(x.dot_number||'—')}</strong><small>${esc(x.mc_number?`MC ${x.mc_number}`:'')}</small></td>

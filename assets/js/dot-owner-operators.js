@@ -69,6 +69,10 @@ function render({owners,employers,ctpas,pools}){
    return {...g,emp,ctpa,pool:directPool,type};
  });
 
+ const ownerNameCounts=new Map();
+ groups.forEach(g=>{const x=g.canonical,k=norm(x.legal_name||x.dba_name);if(k)ownerNameCounts.set(k,(ownerNameCounts.get(k)||0)+1)});
+ const ownerDisplayName=x=>{const base=x.legal_name||x.dba_name||'Owner-Operator',k=norm(base);return (ownerNameCounts.get(k)||0)>1&&x.state?`${base} (${String(x.state).toUpperCase()})`:base};
+
  const active=groups.filter(g=>norm(g.canonical.status)==='active').length;
  const ctpaManaged=groups.filter(g=>g.type==='ctpa').length;
  const enrolled=groups.filter(g=>norm(g.canonical.consortium_status)==='active'||g.pool).length;
@@ -123,7 +127,7 @@ function render({owners,employers,ctpas,pools}){
        const relation=g.type==='ctpa'?`<span class="owner-type ctpa">C/TPA Managed</span><small>${esc(g.ctpa?.legal_name||g.ctpa?.support_email||g.emp?.ctpa_id||'C/TPA')}</small>`:`<span class="owner-type direct">Direct</span><small>Independent owner-operator</small>`;
        const poolName=g.pool?.name||null;
        return `<tr>
-         <td><strong>${esc(x.legal_name||x.dba_name||'Owner-Operator')}</strong><small>${esc(x.email||x.id)}</small></td>
+         <td><strong>${esc(ownerDisplayName(x))}</strong><small>${esc(x.email||x.id)}</small></td>
          <td>${relation}</td>
          <td><strong>${esc(x.dot_number||'—')}</strong><small>${esc(x.mc_number?`MC ${x.mc_number}`:'')}</small></td>
          <td>${poolName?`<strong>${esc(poolName)}</strong><small>${esc(g.pool.dot_agency||'FMCSA')} · ${pill(g.pool.status)}</small>`:pill(x.consortium_status||'not_enrolled',norm(x.consortium_status)==='active'?'ok':'warn')}</td>
