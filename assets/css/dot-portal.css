@@ -949,3 +949,15 @@ body.dot-modal-open{overflow:hidden}
 @media(max-width:1100px){.document-preview-stage{overflow:auto}.document-preview-paper.landscape-certificate{transform-origin:top left}}
 
 .certificate-issued{width:72%;margin:4px auto 0;text-align:center;border-top:1px solid #7f93ab;padding-top:8px}.certificate-issued strong{display:block;color:#173f75;font-size:14px}.certificate-issued span{display:block;margin-top:3px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#7b8ca0}
+
+
+.document-security-shell{position:relative;min-height:100%;overflow:hidden}
+.document-security-shell>*{position:relative;z-index:1}
+.document-security-shell.is-trackable .preview-content{position:relative;z-index:1}
+.document-watermark{position:absolute;inset:82px 30px 40px;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.065;z-index:0}
+.document-watermark img{max-width:74%;max-height:74%;object-fit:contain;filter:grayscale(100%)}
+.document-security-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px;padding:0 0 12px;border-bottom:1px solid #dce5ef;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#617389}
+.document-security-bottom{margin-top:18px;padding-top:12px;border-top:1px solid #dce5ef;font-size:10px;color:#708197;letter-spacing:.05em;text-align:center}
+.certificate-tracking{display:flex;justify-content:center;align-items:baseline;gap:10px;margin:0 0 12px}
+.certificate-tracking span{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#7b8ca0}
+.certificate-tracking strong{font-size:14px;color:#173f75}
