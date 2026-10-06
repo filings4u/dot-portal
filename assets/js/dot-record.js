@@ -237,6 +237,7 @@ async function load(){
  const schema=schemas[mod],saveAction=saveActions[mod],payloadKey=payloadKeys[mod];
 
  if(mode==='new'){
+   if(mod==='programs'||mod==='pools'){location.replace(back);return}
    if(isSelection){$('#recordBody').innerHTML=`<div class="dot-card"><div class="dot-card-head"><div><h2>Random selections are generated from the Random Selections workspace</h2><p>Once a selection is created, this record page is read-only. Existing selections cannot be edited or changed.</p></div></div><div class="dot-card-body"><a class="dot-btn primary" href="${back}">Back to Random Selections</a></div></div>`;return}
    $('#recordBody').innerHTML=`<div class="dot-card"><div class="dot-card-head"><div><h2>Create ${esc(titleCase(mod))}</h2><p>Use the module's full management workflow so account creation, access, subscriptions, and audit records stay synchronized.</p></div></div><div class="dot-card-body"><div class="dot-actions"><a class="dot-btn primary" href="${back}">Open ${esc(titleCase(mod))} Workspace</a></div></div></div>`;
    return;
