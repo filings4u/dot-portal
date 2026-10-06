@@ -963,3 +963,22 @@ body.dot-modal-open{overflow:hidden}
 .certificate-tracking strong{font-size:14px;color:#173f75}
 
 .document-tracking-number{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;font-weight:800;letter-spacing:.02em;color:#173f75;white-space:nowrap}
+
+/* Compact DOT Documents directory rows */
+.documents-admin-page .document-table{table-layout:fixed!important}
+.documents-admin-page .document-table th:nth-child(1){width:27%!important}
+.documents-admin-page .document-table th:nth-child(2){width:18%!important}
+.documents-admin-page .document-table th:nth-child(3){width:18%!important}
+.documents-admin-page .document-table th:nth-child(4){width:11%!important}
+.documents-admin-page .document-table th:nth-child(5){width:9%!important}
+.documents-admin-page .document-table th:nth-child(6){width:8%!important}
+.documents-admin-page .document-table th:nth-child(7){width:9%!important}
+.documents-admin-page .document-table th,
+.documents-admin-page .document-table td{padding:7px 12px!important;vertical-align:middle!important;line-height:1.25!important}
+.documents-admin-page .document-table td strong{line-height:1.2!important}
+.documents-admin-page .document-table td small{margin-top:2px!important;line-height:1.2!important;font-size:9.5px!important}
+.documents-admin-page .document-table tbody tr{height:auto!important;min-height:0!important}
+.documents-admin-page .document-actions{gap:5px!important;flex-wrap:nowrap!important;align-items:center!important}
+.documents-admin-page .document-actions .dot-btn.small{min-height:28px!important;height:28px!important;padding:0 8px!important;font-size:10px!important;border-radius:6px!important}
+.documents-admin-page .document-tracking-number{font-size:9.5px!important;line-height:1.2!important;white-space:nowrap!important}
+.documents-admin-page .dot-status-pill{font-size:9px!important;padding:4px 7px!important;line-height:1!important}
