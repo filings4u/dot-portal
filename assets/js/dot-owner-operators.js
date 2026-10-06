@@ -130,7 +130,7 @@ function render({owners,employers,ctpas,pools}){
          <td><strong>${x.owner_is_driver?'Owner is driver':'Company only'}</strong><small>${esc(`${x.cdl_driver_count??0} CDL driver(s) · ${x.vehicle_count??0} vehicle(s)`)}</small></td>
          <td>${g.records.length>1?`<span class="owner-duplicate">${g.records.length} linked records</span>`:'<span class="owner-single">1 record</span>'}</td>
          <td>${pill(x.status)}</td>
-         <td><div class="owner-actions"><a class="dot-btn small primary" href="dot-record.html?module=owner_operators&id=${encodeURIComponent(x.id)}">Manage</a>${g.emp?`<a class="dot-btn small" href="dot-record.html?module=employers&id=${encodeURIComponent(g.emp.id)}">Employer</a>`:''}${g.ctpa?`<a class="dot-btn small" href="dot-ctpa-detail.html?id=${encodeURIComponent(g.ctpa.id)}">C/TPA</a>`:''}</div></td>
+         <td><div class="owner-actions"><a class="dot-btn small primary" href="dot-owner-operator-detail.html?id=${encodeURIComponent(x.id)}">Manage Portal</a><a class="dot-btn small" href="dot-record.html?module=owner_operators&id=${encodeURIComponent(x.id)}">Raw Record</a>${g.emp?`<a class="dot-btn small" href="dot-record.html?module=employers&id=${encodeURIComponent(g.emp.id)}">Employer</a>`:''}${g.ctpa?`<a class="dot-btn small" href="dot-ctpa-detail.html?id=${encodeURIComponent(g.ctpa.id)}">C/TPA</a>`:''}</div></td>
        </tr>`;
      }).join('')||'<tr><td colspan="8"><div class="dot-empty">No owner-operators match these filters.</div></td></tr>'}</tbody>
    </table></div>`;
