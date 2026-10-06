@@ -18,7 +18,7 @@ function shell(){
      </div>
      <div class="dot-actions">
        <a class="dot-btn" href="dot-employers.html">Employer Directory</a>
-       <a class="dot-btn" href="dot-pools.html">Consortiums & Pools</a>
+       <a class="dot-btn" href="dot-pools.html">Consortiums</a>
        <button class="dot-btn" type="button" id="refreshOwners">Refresh</button>
      </div>
    </header>
@@ -82,13 +82,13 @@ function render({owners,employers,ctpas,pools}){
   <div class="dot-metrics">
     ${metric('Owner-Operators',groups.length,'Unique customer identities')}
     ${metric('Active Accounts',active,'Currently active owner-operators')}
-    ${metric('Consortium / Pool',enrolled,'Accounts with pool participation')}
+    ${metric('Consortium / Pool',enrolled,'Accounts with Consortium participation')}
     ${metric('Duplicate Groups',duplicates,duplicates?'Multiple records share one identity':'No duplicate identities')}
   </div>
 
   <div class="owner-quick-grid">
     <a class="owner-quick-card" href="dot-employers.html"><span>▧</span><div><strong>Employer Records</strong><small>Each owner-operator also has an employer-side company record.</small></div></a>
-    <a class="owner-quick-card" href="dot-pools.html"><span>◎</span><div><strong>Consortiums & Pools</strong><small>Manage FMCSA random pool participation and ownership.</small></div></a>
+    <a class="owner-quick-card" href="dot-pools.html"><span>◎</span><div><strong>Consortiums</strong><small>Manage FMCSA random Consortium participation and ownership.</small></div></a>
     <a class="owner-quick-card" href="dot-drivers.html"><span>♙</span><div><strong>Driver Records</strong><small>Manage the owner as a safety-sensitive driver when applicable.</small></div></a>
     <a class="owner-quick-card" href="dot-testing-orders.html"><span>▤</span><div><strong>Testing Orders</strong><small>Manage drug and alcohol testing activity for covered owner-operators.</small></div></a>
   </div>
@@ -102,7 +102,7 @@ function render({owners,employers,ctpas,pools}){
       <div class="owner-filter-grid">
         <div class="dot-field"><label for="ownerSearch">Search owner-operators</label><input id="ownerSearch" type="search" placeholder="Company, email, USDOT, MC, owner ID"></div>
         <div class="dot-field"><label for="ownerType">Relationship</label><select id="ownerType"><option value="">All relationships</option><option value="ctpa">C/TPA managed</option><option value="direct">Direct owner-operator</option></select></div>
-        <div class="dot-field"><label for="ownerPool">Consortium / Pool</label><select id="ownerPool"><option value="">All pool states</option><option value="enrolled">Enrolled / assigned</option><option value="not_enrolled">Not enrolled</option></select></div>
+        <div class="dot-field"><label for="ownerPool">Consortium / Pool</label><select id="ownerPool"><option value="">All Consortium states</option><option value="enrolled">Enrolled / assigned</option><option value="not_enrolled">Not enrolled</option></select></div>
         <div class="dot-field"><label for="ownerStatusFilter">Status</label><select id="ownerStatusFilter"><option value="">All statuses</option>${[...new Set(groups.map(g=>g.canonical.status).filter(Boolean))].sort().map(x=>`<option value="${esc(x)}">${esc(String(x).replaceAll('_',' '))}</option>`).join('')}</select></div>
         <div class="dot-field"><label for="ownerRecords">Records</label><select id="ownerRecords"><option value="">All records</option><option value="single">Single record</option><option value="duplicate">Duplicate groups</option></select></div>
         <button class="dot-btn" type="button" id="clearOwnerFilters">Clear</button>
@@ -130,7 +130,7 @@ function render({owners,employers,ctpas,pools}){
          <td><strong>${esc(ownerDisplayName(x))}</strong><small>${esc(x.email||x.id)}</small></td>
          <td>${relation}</td>
          <td><strong>${esc(x.dot_number||'—')}</strong><small>${esc(x.mc_number?`MC ${x.mc_number}`:'')}</small></td>
-         <td>${poolName?`<strong>${esc(poolName)}</strong><small>${esc(g.pool.dot_agency||'FMCSA')} · ${pill(g.pool.status)}</small>`:pill(x.consortium_status||'not_enrolled',norm(x.consortium_status)==='active'?'ok':'warn')}</td>
+         <td>${poolName?`<strong>${esc(poolName)}</strong><small>${esc(g.Consortium.dot_agency||'FMCSA')} · ${pill(g.Consortium.status)}</small>`:pill(x.consortium_status||'not_enrolled',norm(x.consortium_status)==='active'?'ok':'warn')}</td>
          <td><strong>${x.owner_is_driver?'Owner is driver':'Company only'}</strong><small>${esc(`${x.cdl_driver_count??0} CDL driver(s) · ${x.vehicle_count??0} vehicle(s)`)}</small></td>
          <td>${g.records.length>1?`<span class="owner-duplicate">${g.records.length} linked records</span>`:'<span class="owner-single">1 record</span>'}</td>
          <td>${pill(x.status)}</td>

@@ -1028,3 +1028,43 @@ body.dot-modal-open{overflow:hidden}
 .documents-admin-page .document-table td:nth-child(3) small{white-space:nowrap!important}
 .documents-admin-page .document-actions{gap:3px!important;flex-wrap:nowrap!important;justify-content:flex-start!important}
 .documents-admin-page .document-actions .dot-btn.small{min-width:32px!important;height:26px!important;min-height:26px!important;padding:0 5px!important;font-size:9px!important}
+
+/* 2026-10-06 — portal-wide alignment normalization */
+.dot-page{
+  width:100%;
+  max-width:1480px;
+  margin:0 auto;
+  padding:24px 30px 48px;
+}
+.dot-page-head,.dot-metrics,.dot-grid,.dot-page>.dot-card,.dot-page>.dot-banner{
+  width:100%;
+  max-width:100%;
+  margin-left:0;
+  margin-right:0;
+}
+.dot-page-head{margin-bottom:18px}
+.dot-metrics{margin-bottom:16px}
+.dot-grid{align-items:start}
+.dot-card{min-width:0}
+.dot-card+.dot-card,.dot-page>.dot-card+.dot-grid,.dot-page>.dot-grid+.dot-card{margin-top:15px}
+.dot-card-head,.dot-card-body{min-width:0}
+.dot-table-wrap{width:100%;max-width:100%;overflow-x:auto}
+.dot-table{width:100%}
+.dot-field-grid{width:100%;align-items:start}
+.dot-field{min-width:0}
+.dot-field input,.dot-field select,.dot-field textarea{width:100%;max-width:100%}
+.dot-actions{align-items:center}
+.program-admin-page .dot-program-directory{margin-top:15px}
+.program-admin-page #programEmployerManager{margin-top:15px}
+.program-admin-page .dot-assignment-grid{grid-template-columns:minmax(280px,1fr) minmax(220px,320px)}
+.dot-inline-date{display:flex;align-items:center;gap:8px;min-width:250px}
+.dot-inline-date input{min-height:34px;width:150px;padding:6px 8px;border:1px solid #cfd9e6;border-radius:7px;color:var(--dot-navy);background:#fff}
+.dot-assignment-table th,.dot-assignment-table td{vertical-align:middle}
+@media(max-width:900px){
+  .dot-page{padding:20px 16px 36px}
+  .program-admin-page .dot-assignment-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .dot-inline-date{min-width:0;flex-wrap:wrap}
+  .dot-inline-date input{width:100%}
+}
