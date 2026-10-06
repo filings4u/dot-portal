@@ -122,13 +122,15 @@ function testingPerson(rec,people){
  return {name,email:pick(rec,['driver_email','employee_email','person_email','donor_email'])||pick(found,['email']),phone:pick(rec,['driver_phone','employee_phone','person_phone','donor_phone'])||pick(found,['mobile','phone']),employee:pick(rec,['employee_number','driver_number'])||pick(found,['employee_number','driver_number']),cdl:pick(rec,['cdl_number'])||pick(found,['cdl_number']),id:id||pick(found,['id'])};
 }
 function testingCompany(rec,ctpas,employers){
- const source=/ctpa/i.test(String(pick(rec,['source_type','account_type','ordered_by_type','customer_type','source'])||''))||!!rec.ctpa_id?'C/TPA':'Direct Employer';
+ const raw=String(pick(rec,['source_type','account_type','ordered_by_type','customer_type','source'])||'').toLowerCase(),meta=rec.metadata||{};
+ const isAdmin=raw.startsWith('admin')||String(meta.ordered_by_type||'').toLowerCase()==='admin'||String(meta.created_from||'').includes('dot_management');
+ const source=isAdmin?'Admin':(/ctpa/i.test(raw)||!!rec.ctpa_id?'C/TPA':'Direct Employer');
  const id=String(source==='C/TPA'?pick(rec,['ctpa_id','account_id','customer_id']):pick(rec,['employer_id','account_id','customer_id']));
  const org=String(pick(rec,['organization_id','account_organization_id','employer_organization_id','ctpa_organization_id'])||'');
  const list=source==='C/TPA'?ctpas:employers;
  const found=list.find(x=>String(x.id||'')===id)||list.find(x=>String(x.organization_id||x.organizations?.id||'')===org)||null;
  const o=found?.organizations||{};
- return {source,id:id||pick(found,['id']),org:org||pick(found,['organization_id'])||o.id||'',name:pick(found,['legal_name','company_name','name'])||pick(o,['legal_name','name'])||pick(rec,['ordered_by_name','account_name','company_name','employer_name'])||'—',dba:pick(found,['dba_name'])||pick(o,['dba_name']),dot:pick(found,['dot_number','usdot_number'])||pick(rec,['dot_number','usdot_number']),mc:pick(found,['mc_number'])||pick(rec,['mc_number']),email:pick(found,['support_email','email'])||pick(o,['primary_email'])||pick(rec,['account_email','customer_email'])};
+ return {source,id:id||pick(found,['id']),org:org||pick(found,['organization_id'])||o.id||'',name:source==='Admin'?(meta.ordered_by||'screenings4u DOT Management'):(pick(found,['legal_name','company_name','name'])||pick(o,['legal_name','name'])||pick(rec,['ordered_by_name','account_name','company_name','employer_name'])||'—'),dba:pick(found,['dba_name'])||pick(o,['dba_name']),dot:pick(found,['dot_number','usdot_number'])||pick(rec,['dot_number','usdot_number']),mc:pick(found,['mc_number'])||pick(rec,['mc_number']),email:pick(found,['support_email','email'])||pick(o,['primary_email'])||pick(rec,['account_email','customer_email'])};
 }
 function relatedTestingOrder(rec,orders){
  const testId=String(rec.id||'');
@@ -263,7 +265,7 @@ async function load(){
    if(!arr(d,'testing').length){const fallback=await DOTApi.call('testing').catch(()=>null);if(fallback)d=fallback}
    context={ctpas:settled[1].status==='fulfilled'?arr(settled[1].value,'ctpas'):[],employers:settled[2].status==='fulfilled'?arr(settled[2].value,'employers'):[],people:settled[3].status==='fulfilled'?arr(settled[3].value,'drivers'):[],ordersData:settled[4].status==='fulfilled'?settled[4].value:{orders:[],order_items:[]},results:settled[5].status==='fulfilled'?arr(settled[5].value,'results'):[]};
  }else d=await DOTApi.call(mod);
- const records=arr(d,mod).filter(Boolean).filter(x=>!isTesting||['C/TPA','Direct Employer'].includes(testingCompany(x,context.ctpas||[],context.employers||[]).source));
+ const records=arr(d,mod).filter(Boolean).filter(x=>!isTesting||['C/TPA','Direct Employer','Admin'].includes(testingCompany(x,context.ctpas||[],context.employers||[]).source));
  const rec=id?records.find(x=>String(x.id)===String(id)):records[idx];
  if(!rec){notice('The selected record is no longer available.',true);$('#recordBody').innerHTML='<div class="dot-card"><div class="dot-empty">Record not found.</div></div>';return}
 

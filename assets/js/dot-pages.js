@@ -236,6 +236,8 @@ async function loadSelections(){
 
 function testingSource(x){
  const raw=String(x.source_type||x.order_source||x.owner_type||x.account_type||x.created_by_type||'').toLowerCase();
+ const meta=x.metadata||{};
+ if(raw.startsWith('admin')||String(meta.ordered_by_type||'').toLowerCase()==='admin'||String(meta.created_from||'').includes('dot_management'))return 'Admin';
  if(x.ctpa_id||x.ctpa_name||x.ctpa_organization_id||raw.includes('ctpa')||raw.includes('c/tpa'))return 'C/TPA';
  if(x.employer_id||x.employer_name||x.organization_id||raw.includes('employer'))return 'Direct Employer';
  return 'Direct Employer';
@@ -281,10 +283,10 @@ function testingEmployer(x,index){
 }
 async function loadTestingOrders(){
  const scopedCtpa=new URLSearchParams(location.search).get('ctpa_id')||'';
- const actions=scopedCtpa?`<a class="dot-btn" href="dot-ctpa-detail.html?id=${encodeURIComponent(scopedCtpa)}">Back to C/TPA</a>`:'';
- renderBase({title:'DOT Testing Orders',copy:scopedCtpa?'All DOT drug and alcohol tests ordered under the selected C/TPA account.':'All DOT drug and alcohol tests ordered by C/TPAs and direct employers.',actions});
+ const actions=scopedCtpa?`<a class="dot-btn" href="dot-ctpa-detail.html?id=${encodeURIComponent(scopedCtpa)}">Back to C/TPA</a>`:'<button class="dot-btn primary" id="newAdminTest">New Test Order</button>';
+ renderBase({title:'DOT Testing Orders',copy:scopedCtpa?'All DOT drug and alcohol tests ordered under the selected C/TPA account.':'All DOT drug and alcohol tests ordered by C/TPAs, direct employers, and screenings4u administrators.',actions});
  document.querySelector('.dot-page')?.classList.add('testing-admin-page');
- let orderData={testing_orders:[]},ctpaData={ctpas:[]},employerData={employers:[]},personData={drivers:[]};
+ let orderData={testing_orders:[]},ctpaData={ctpas:[]},employerData={employers:[]},personData={drivers:[]},programData={};
  if(scopedCtpa){
   const settled=await Promise.allSettled([DOTApi.call('customer_detail',{customer_type:'ctpa',customer_id:scopedCtpa}),DOTApi.call('ctpas'),DOTApi.call('employers'),DOTApi.call('drivers')]);
   orderData=settled[0].status==='fulfilled'?settled[0].value:{testing_orders:[]};
@@ -292,11 +294,12 @@ async function loadTestingOrders(){
   employerData=settled[2].status==='fulfilled'?settled[2].value:{employers:[]};
   personData=settled[3].status==='fulfilled'?settled[3].value:{drivers:[]};
  }else{
-  const settled=await Promise.allSettled([DOTApi.call('overview'),DOTApi.call('ctpas'),DOTApi.call('employers'),DOTApi.call('drivers')]);
+  const settled=await Promise.allSettled([DOTApi.call('overview'),DOTApi.call('ctpas'),DOTApi.call('employers'),DOTApi.call('drivers'),DOTApi.call('programs')]);
   orderData=settled[0].status==='fulfilled'?settled[0].value:{testing_orders:[]};
   ctpaData=settled[1].status==='fulfilled'?settled[1].value:{ctpas:[]};
   employerData=settled[2].status==='fulfilled'?settled[2].value:{employers:[]};
   personData=settled[3].status==='fulfilled'?settled[3].value:{drivers:[]};
+  programData=settled[4].status==='fulfilled'?settled[4].value:{};
   if(!get(orderData,'testing_orders').length){
    const fallback=await DOTApi.call('testing').catch(()=>null);
    if(fallback)orderData=fallback;
@@ -306,11 +309,11 @@ async function loadTestingOrders(){
  const directory=programDirectoryIndex(ctpas,employers);
  const personRows=[...get(personData,'drivers','employees'),...get(orderData,'drivers','employees')];
  const people=testingPersonIndex(personRows);
- const orders=get(orderData,'testing_orders','tests').filter(Boolean).filter(x=>{const src=testingSource(x);return src==='C/TPA'||src==='Direct Employer'});
- const counts={ctpa:0,direct:0,open:0,complete:0};
+ const orders=get(orderData,'testing_orders','tests').filter(Boolean).filter(x=>{const src=testingSource(x);return ['C/TPA','Direct Employer','Admin'].includes(src)});
+ const counts={ctpa:0,direct:0,admin:0,open:0,complete:0};
  const rows=orders.map((x,i)=>{
-  const src=testingSource(x),srcClass=src==='C/TPA'?'ctpa':'direct';
-  if(src==='C/TPA')counts.ctpa++;else counts.direct++;
+  const src=testingSource(x),srcClass=src==='C/TPA'?'ctpa':src==='Admin'?'admin':'direct';
+  if(src==='C/TPA')counts.ctpa++;else if(src==='Admin')counts.admin++;else counts.direct++;
   const status=String(testingStatus(x));
   if(/completed|complete|resulted|closed|cancelled|canceled/i.test(status))counts.complete++;else counts.open++;
   const orderedBy=resolveProgramCompany(x,src,directory);
@@ -324,15 +327,29 @@ async function loadTestingOrders(){
   return {source:src,agency,status:status.toLowerCase(),html:`<tr data-test-row data-source="${esc(srcClass)}" data-agency="${esc(agency.toLowerCase())}" data-status="${esc(status.toLowerCase())}" data-search="${esc(search)}"><td><strong>${esc(testingOrderNumber(x))}</strong><small>${fmtDate(date)}</small></td><td><div class="dot-test-person"><strong>${esc(person.name)}</strong></div></td><td><span class="dot-source-pill ${srcClass}">${esc(src)}</span></td><td>${companyCell(orderedBy,src)}</td><td>${employerCell}</td><td><strong>${esc(type)}</strong><small>${esc(reason)}</small></td><td>${esc(agency)}</td><td>${badge(status)}</td><td><a class="dot-btn small" href="dot-record.html?module=testing&id=${encodeURIComponent(x.id||'')}&row=${i}${scopedCtpa?'&ctpa_id='+encodeURIComponent(scopedCtpa):''}">View</a></td></tr>`};
  });
  const agencies=[...new Set(rows.map(r=>r.agency).filter(v=>v&&v!=='—'))].sort();
- $('#dotPageStatus').innerHTML='<div class="dot-banner"><div><strong>Testing order directory</strong><span>Showing DOT test orders from C/TPA and direct-employer accounts. Company details are resolved from the DOT account directories.</span></div></div>';
- $('#dotPageBody').innerHTML=`${metrics([['All DOT Tests',orders.length,'C/TPA and direct-employer orders'],['C/TPA Ordered',counts.ctpa,'Tests ordered through C/TPAs'],['Direct Employer',counts.direct,'Tests ordered directly by employers'],['Open Tests',counts.open,'Not yet complete or closed']])}
+ $('#dotPageStatus').innerHTML='<div class="dot-banner"><div><strong>Testing order directory</strong><span>Showing DOT test orders from C/TPAs, direct employers, and screenings4u administrators. All fulfillment remains read-only here and is handled by screenings4u Testing.</span></div></div>'; 
+ $('#dotPageBody').innerHTML=`${metrics([['All DOT Tests',orders.length,'C/TPA, direct-employer, and admin orders'],['C/TPA Ordered',counts.ctpa,'Tests ordered through C/TPAs'],['Direct Employer',counts.direct,'Tests ordered directly by employers'],['Admin Ordered',counts.admin,'Created by screenings4u DOT Management'],['Open Tests',counts.open,'Not yet complete or closed']])}
  <div class="dot-card dot-program-directory">
   <div class="dot-card-head"><div><h2>DOT Testing Order Directory</h2><p>Each test order shows the person being tested, who ordered it, the employer/company, test reason and current status.</p></div><span class="dot-badge active" id="testVisibleCount">${orders.length} tests</span></div>
-  <div class="dot-card-body dot-program-filters"><div class="dot-filter-row"><input id="testSearch" type="search" placeholder="Search order, person, company, USDOT, email, test or agency"><select id="testSource"><option value="">All sources</option><option value="ctpa">C/TPAs</option><option value="direct">Direct employers</option></select><select id="testAgency"><option value="">All agencies</option>${agencies.map(a=>`<option value="${esc(a.toLowerCase())}">${esc(a)}</option>`).join('')}</select><select id="testStatus"><option value="">All statuses</option><option value="open">Open / In progress</option><option value="complete">Completed / Closed</option></select></div></div>
-  <div class="dot-table-wrap"><table class="dot-table"><colgroup><col style="width:8%"><col style="width:11%"><col style="width:9%"><col style="width:22%"><col style="width:21%"><col style="width:10%"><col style="width:6%"><col style="width:8%"><col style="width:5%"></colgroup><thead><tr><th>Order</th><th>Person</th><th>Source</th><th>Ordered By / Account</th><th>Employer / Company</th><th>Test / Reason</th><th>Agency</th><th>Status</th><th>View</th></tr></thead><tbody>${rows.length?rows.map(r=>r.html).join(''):'<tr><td colspan="9"><div class="dot-empty">No DOT testing orders were found for C/TPA or direct-employer accounts.</div></td></tr>'}</tbody></table></div>
+  <div class="dot-card-body dot-program-filters"><div class="dot-filter-row"><input id="testSearch" type="search" placeholder="Search order, person, company, USDOT, email, test or agency"><select id="testSource"><option value="">All sources</option><option value="ctpa">C/TPAs</option><option value="direct">Direct employers</option><option value="admin">Admin</option></select><select id="testAgency"><option value="">All agencies</option>${agencies.map(a=>`<option value="${esc(a.toLowerCase())}">${esc(a)}</option>`).join('')}</select><select id="testStatus"><option value="">All statuses</option><option value="open">Open / In progress</option><option value="complete">Completed / Closed</option></select></div></div>
+  <div class="dot-table-wrap"><table class="dot-table"><colgroup><col style="width:8%"><col style="width:11%"><col style="width:9%"><col style="width:22%"><col style="width:21%"><col style="width:10%"><col style="width:6%"><col style="width:8%"><col style="width:5%"></colgroup><thead><tr><th>Order</th><th>Person</th><th>Source</th><th>Ordered By / Account</th><th>Employer / Company</th><th>Test / Reason</th><th>Agency</th><th>Status</th><th>View</th></tr></thead><tbody>${rows.length?rows.map(r=>r.html).join(''):'<tr><td colspan="9"><div class="dot-empty">No DOT testing orders were found.</div></td></tr>'}</tbody></table></div>
  </div>`;
  const filter=()=>{const q=($('#testSearch')?.value||'').trim().toLowerCase(),src=$('#testSource')?.value||'',agency=$('#testAgency')?.value||'',status=$('#testStatus')?.value||'';let visible=0;document.querySelectorAll('[data-test-row]').forEach(tr=>{const closed=/completed|complete|resulted|closed|cancelled|canceled/.test(tr.dataset.status||'');const statusOk=!status||(status==='complete'?closed:!closed);const ok=(!q||tr.dataset.search.includes(q))&&(!src||tr.dataset.source===src)&&(!agency||tr.dataset.agency===agency)&&statusOk;tr.hidden=!ok;if(ok)visible++;});if($('#testVisibleCount'))$('#testVisibleCount').textContent=`${visible} test${visible===1?'':'s'}`};
  ['testSearch','testSource','testAgency','testStatus'].forEach(id=>$('#'+id)?.addEventListener(id==='testSearch'?'input':'change',filter));
+ if(!scopedCtpa&&$('#newAdminTest')){
+  $('#newAdminTest').onclick=async()=>{
+   const pData=programData&&Object.keys(programData).length?programData:await DOTApi.call('programs').catch(()=>({}));
+   const allPrograms=get(pData,'programs').filter(x=>String(x.status||'active')==='active'&&!x.archived_at);
+   const assignments=get(pData,'program_employers');
+   const workers=get(personData,'drivers','employees').filter(x=>!x.archived_at&&(x.dot_covered===true||x.safety_sensitive===true));
+   const emps=get(employerData,'employers').filter(x=>!x.archived_at&&x.status!=='archived');
+   $('#dotPageStatus').innerHTML=`<div class="dot-card"><div class="dot-card-head"><div><h2>Create Admin Test Order</h2><p>Create the DOT order here. screenings4u Testing will handle fulfillment after creation.</p></div><button class="dot-btn" id="cancelAdminTest">Cancel</button></div><div class="dot-card-body"><div class="dot-field-grid"><div class="dot-field"><label>Employer / Owner-Operator Account</label><select id="adminTestEmployer" required><option value="">Select employer</option>${emps.map(e=>`<option value="${esc(e.id)}">${esc(e.legal_name||e.dba_name||e.id)}</option>`).join('')}</select></div><div class="dot-field"><label>DOT Program</label><select id="adminTestProgram" required><option value="">Select employer first</option></select></div><div class="dot-field"><label>Driver / Safety-Sensitive Worker</label><select id="adminTestWorker" required><option value="">Select employer first</option></select></div><div class="dot-field"><label>Reason</label><select id="adminTestReason"><option value="random">Random</option><option value="pre_employment">Pre-Employment</option><option value="post_accident">Post-Accident</option><option value="reasonable_suspicion">Reasonable Suspicion</option><option value="return_to_duty">Return-to-Duty</option><option value="follow_up">Follow-Up</option></select></div><div class="dot-field"><label>Test Type</label><select id="adminTestType"><option value="drug">Drug</option><option value="alcohol">Alcohol</option></select></div><div class="dot-field"><label>Collection Deadline</label><input id="adminTestDeadline" type="datetime-local"></div></div><div id="adminTestMsg"></div><div class="dot-actions"><button class="dot-btn primary" id="createAdminTest">Create Test Order</button></div></div></div>`;
+   const empSel=$('#adminTestEmployer'),progSel=$('#adminTestProgram'),workerSel=$('#adminTestWorker');
+   const sync=()=>{const eid=empSel.value;const allowedIds=new Set(assignments.filter(a=>a.employer_id===eid&&String(a.status||'active')==='active'&&!a.removed_at).map(a=>a.program_id));const ps=allPrograms.filter(p=>p.employer_id===eid||allowedIds.has(p.id));progSel.innerHTML='<option value="">Select program</option>'+ps.map(p=>`<option value="${esc(p.id)}">${esc(p.name||p.id)}</option>`).join('');const ws=workers.filter(w=>w.employer_id===eid);workerSel.innerHTML='<option value="">Select worker</option>'+ws.map(w=>`<option value="${esc(w.id)}">${esc([w.first_name,w.last_name].filter(Boolean).join(' ')||w.employee_number||w.id)}</option>`).join('')};
+   empSel.onchange=sync; $('#cancelAdminTest').onclick=()=>location.reload();
+   $('#createAdminTest').onclick=async()=>{const btn=$('#createAdminTest');try{btn.disabled=true;const deadline=$('#adminTestDeadline').value;const payload={employer_id:empSel.value,program_id:progSel.value,employee_id:workerSel.value,reason:$('#adminTestReason').value,test_type:$('#adminTestType').value,collection_deadline:deadline?new Date(deadline).toISOString():null,source_type:'admin_manual'};if(!payload.employer_id||!payload.program_id||!payload.employee_id)throw new Error('Employer, program, and worker are required.');await DOTApi.call('create_testing_order',{testing:payload});DOTApi.clearCache();location.reload()}catch(e){$('#adminTestMsg').innerHTML=`<div class="dot-banner warning"><strong>Unable to create test order</strong><span>${esc(e.message)}</span></div>`;btn.disabled=false}};
+  };
+ }
 }
 
 
